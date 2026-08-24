@@ -13,8 +13,8 @@ import mashacidadition as acidm
 import spargeacidadition as acids
 import watervolume as water
 
-mash_vol         = 8.5
-final_vol        = 8.0
+mash_vol         = 18.5
+final_vol        = 18.0
 preboil_max      = 19.0
 target_mash_ph   = 5.3
 target_sparge_ph = 5.5
@@ -27,7 +27,7 @@ recipes = rm.RecipeManager()
 
 
 RECIPE_ID = "blonde_01"
-details = recipes.get_recipe_details(RECIPE_ID)
+details = recipes.get_recipe_details(RECIPE_ID, target_volume_l=final_vol)
 
 recipe_data = details["recipe_raw"]
 grains = details["resolved_grains"]
