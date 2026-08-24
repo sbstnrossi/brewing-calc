@@ -6,7 +6,7 @@
       "style": "American IPA",
       "volumes": {
         "mash_liters": 22.0,
-        "sparge_liters": 14.0
+        "batch_volume_liters": 20.0
       },
       "target_mash_ph": 5.35,
       "water_settings": {
@@ -18,6 +18,12 @@
         { "malt_id": "pale_ale", "weight_kg": 4.8 },
         { "malt_id": "wheat_light", "weight_kg": 0.5 },
         { "malt_id": "crystal_20", "weight_kg": 0.3 }
+      ],
+      "hop_bill": [
+        { "hop_id": "columbus", "name": "Columbus", "weight_g": 25.0, "alpha_acid_pct": 14.5, "use": "boil", "time_min": 60 },
+        { "hop_id": "centennial", "name": "Centennial", "weight_g": 30.0, "alpha_acid_pct": 9.5, "use": "boil", "time_min": 15 },
+        { "hop_id": "citra", "name": "Citra", "weight_g": 40.0, "alpha_acid_pct": 12.5, "use": "whirlpool", "time_min": 15 },
+        { "hop_id": "simcoe", "name": "Simcoe", "weight_g": 60.0, "alpha_acid_pct": 13.0, "use": "dry_hop", "time_days": 0 }
       ]
     },
     {
@@ -26,7 +32,7 @@
       "style": "Dry Stout",
       "volumes": {
         "mash_liters": 18.0,
-        "sparge_liters": 12.0
+        "batch_volume_liters": 19.0
       },
       "target_mash_ph": 5.40,
       "water_settings": {
@@ -39,6 +45,10 @@
         { "malt_id": "roasted_barley", "weight_kg": 0.5 },
         { "malt_id": "chocolate", "weight_kg": 0.2 },
         { "malt_id": "oats_flaked", "weight_kg": 0.3 }
+      ],
+      "hop_bill": [
+        { "hop_id": "east_kent_goldings", "name": "East Kent Goldings", "weight_g": 45.0, "alpha_acid_pct": 5.0, "use": "boil", "time_min": 60 },
+        { "hop_id": "fuggles", "name": "Fuggles", "weight_g": 15.0, "alpha_acid_pct": 4.5, "use": "boil", "time_min": 15 }
       ]
     },
     {
@@ -47,7 +57,7 @@
       "style": "Blonde",
       "volumes": {
         "mash_liters": 8.5,
-        "sparge_liters": 8.0
+        "batch_volume_liters": 8.0
       },
       "target_mash_ph": 5.35,
       "water_settings": {
@@ -59,6 +69,10 @@
         { "malt_id": "pilsner", "weight_kg": 1.8 },
         { "malt_id": "wheat_light", "weight_kg": 0.15 },
         { "malt_id": "crystal_30", "weight_kg": 0.075 }
+      ],
+      "hop_bill": [
+        { "hop_id": "cascade", "name": "Cascade", "weight_g": 8.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 60 },
+        { "hop_id": "cascade", "name": "Cascade", "weight_g": 10.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 10 }
       ]
     },
     {
@@ -67,7 +81,7 @@
       "style": "APA",
       "volumes": {
         "mash_liters": 8.0,
-        "sparge_liters": 9.0
+        "batch_volume_liters": 8.0
       },
       "target_mash_ph": 5.3,
       "water_settings": {
@@ -79,6 +93,11 @@
         { "malt_id": "pilsner", "weight_kg": 1.8 },
         { "malt_id": "wheat_light", "weight_kg": 0.15 },
         { "malt_id": "carapils", "weight_kg": 0.075 }
+      ],
+      "hop_bill": [
+        { "hop_id": "magnum", "name": "Magnum", "weight_g": 7.0, "alpha_acid_pct": 12.0, "use": "boil", "time_min": 60 },
+        { "hop_id": "cascade", "name": "Cascade", "weight_g": 12.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 10 },
+        { "hop_id": "cascade", "name": "Cascade", "weight_g": 15.0, "alpha_acid_pct": 6.0, "use": "whirlpool", "time_min": 10 }
       ]
     }
   ]
