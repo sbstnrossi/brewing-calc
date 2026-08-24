@@ -12,6 +12,7 @@ import salescalc as sales
 import mashacidadition as acidm
 import spargeacidadition as acids
 import watervolume as water
+import htmlreport as report
 
 mash_vol         = 18.5
 final_vol        = 18.0
@@ -60,33 +61,33 @@ if target_water:
     print(f"Objetivo Ca2+: {target_water['ca']} ppm | SO4--: {target_water['so4']} ppm")
 
 # Calcular la combinación de sales
-receta = sales.solve_salt_additions(
+receta_sales = sales.solve_salt_additions(
     source_profile=ro_water, 
     target_profile=target_water, 
     volume_liters=tot_volume
 )
 
 print("--- Sales recomendadas (gramos) ---")
-for salt, g in receta["salts_grams"].items():
+for salt, g in receta_sales["salts_grams"].items():
     print(f"  {sales.SALTS_DATABASE[salt]['name']}: {g} g")
 
 print("\n--- Comparación de Perfil ---")
-print(f"Objetivo  : {receta['target_profile']}")
-adj_water = receta['resulting_profile']
-print(f"Resultante: {receta['resulting_profile']}")
-print(f"Relación SO4/Cl: {receta['so4_cl_ratio']}")
+print(f"Objetivo  : {receta_sales['target_profile']}")
+adj_water = receta_sales['resulting_profile']
+print(f"Resultante: {receta_sales['resulting_profile']}")
+print(f"Relación SO4/Cl: {receta_sales['so4_cl_ratio']}")
 
-estimacion = acidm.estimate_unadjusted_mash_ph(
+estimate_mash_ph = acidm.estimate_unadjusted_mash_ph(
     mash_volume_l=mash_vol,
     water_profile=adj_water,
     grain_bill=grains
 )
 
 print("--- ESTIMACIÓN DE pH DE MACERACIÓN (SIN ÁCIDO) ---")
-print(f"pH base de los granos (en agua destilada): {estimacion['weighted_di_ph']}")
-print(f"Aumento por Bicarbonatos: +{estimacion['alkalinity_ph_shift']} pH")
-print(f"Reducción por Ca/Mg:      {estimacion['minerals_ph_shift']} pH")
-print(f"-> pH NATURAL ESTIMADO:   {estimacion['estimated_unadjusted_ph']}\n")
+print(f"pH base de los granos (en agua destilada): {estimate_mash_ph['weighted_di_ph']}")
+print(f"Aumento por Bicarbonatos: +{estimate_mash_ph['alkalinity_ph_shift']} pH")
+print(f"Reducción por Ca/Mg:      {estimate_mash_ph['minerals_ph_shift']} pH")
+print(f"-> pH NATURAL ESTIMADO:   {estimate_mash_ph['estimated_unadjusted_ph']}\n")
 
 resultado_fosforico = acidm.calculate_mash_acid_addition(
     mash_volume_l= mash_vol,
@@ -111,3 +112,5 @@ res_ro = acids.calculate_sparge_acid_addition(
 print("--- AGUA DE LAVADO RO ---")
 print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
 print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")
+
+report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, sparge_vol, dilute_vol, sales.SALTS_DATABASE)

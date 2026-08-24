@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Blonde for HoneyBeer - Hoja de Elaboración</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.5;
+            color: #1f2937;
+            max-width: 850px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        h1 { color: #d97706; margin-top: 0; border-bottom: 2px solid #fef3c7; padding-bottom: 8px; }
+        h2 { color: #374151; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; font-size: 1.2em; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .metric-box {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #d97706;
+        }
+        .metric-box.highlight { border-left-color: #059669; background: #ecfdf5; }
+        .metric-box label { font-size: 0.8em; color: #6b7280; display: block; text-transform: uppercase; font-weight: bold; }
+        .metric-box span { font-size: 1.25em; font-weight: bold; color: #111827; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 0.95em; }
+        th { background-color: #f9fafb; font-weight: 600; color: #4b5563; }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado de Receta -->
+    <div class="card">
+        <h1>🍺 Blonde for HoneyBeer</h1>
+        <p><strong>Estilo:</strong> Blonde | <strong>pH Objetivo Macerado:</strong> 5.35</p>
+
+        <div class="grid-3">
+            <div class="metric-box">
+                <label>Volumen Lote Final</label>
+                <span>18.0 L</span>
+            </div>
+            <div class="metric-box">
+                <label>Volumen Macerado</label>
+                <span>19.12 L</span>
+            </div>
+            <div class="metric-box">
+                <label>Volumen Enjuague</label>
+                <span>6.88 L</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ajuste de Agua y Sales -->
+    <div class="card">
+        <h2>🧂 Tratamiento de Agua y Sales</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Sales Recomendadas</h3>
+                <table>
+                    <thead>
+                        <tr><th>Sal</th><th style="text-align: right;">Cantidad</th></tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td><strong>Sulfato de Calcio (Yeso)</strong></td>
+            <td style="text-align: right;"><strong>3.17 g</strong></td>
+        </tr>
+        
+        <tr>
+            <td><strong>Cloruro de Calcio (Dihidratado)</strong></td>
+            <td style="text-align: right;"><strong>3.24 g</strong></td>
+        </tr>
+        
+        <tr>
+            <td><strong>Cloruro de Magnesio (Hexahidratado)</strong></td>
+            <td style="text-align: right;"><strong>2.51 g</strong></td>
+        </tr>
+        
+        <tr>
+            <td><strong>Cloruro de Sodio (Sal de mesa)</strong></td>
+            <td style="text-align: right;"><strong>0.55 g</strong></td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h3>Perfil de Agua</h3>
+                <div class="metric-box" style="margin-bottom: 10px;">
+                    <label>Relación SO4 / Cl</label>
+                    <span>0.65</span>
+                </div>
+                <p><strong>Perfil Objetivo:</strong> {'ca': 50.0, 'mg': 10.0, 'na': 15.0, 'so4': 55.0, 'cl': 85.0, 'hco3': 50.0, 'description': 'Cervezas rubias/doradas con mayor cuerpo y presencia de malta.'}</p>
+                <p><strong>Perfil Resultante:</strong> {'ca': 49.62, 'mg': 9.01, 'na': 14.48, 'so4': 55.08, 'cl': 85.1, 'hco3': 11.0}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control de pH -->
+    <div class="card">
+        <h2>🧪 Estimación y Ajuste de pH</h2>
+        <div class="grid-2">
+            <div>
+                <p><strong>pH Base Granos (DI):</strong> 5.72</p>
+                <p><strong>Aumento por Bicarbonatos:</strong> +0.02 pH</p>
+                <p><strong>Reducción por Ca/Mg:</strong> -0.09 pH</p>
+                <div class="metric-box">
+                    <label>pH Natural Estimado (Sin Ácido)</label>
+                    <span>5.65</span>
+                </div>
+            </div>
+            <div>
+                <div class="metric-box highlight" style="margin-bottom: 12px;">
+                    <label>Ácido Macerado (Ácido Fosfórico 1M)</label>
+                    <span>55.86 mL</span>
+                </div>
+                <div class="metric-box highlight">
+                    <label>Ácido Lavado RO (Phosphoric 1M)</label>
+                    <span>1.066 mL</span>
+                    <small style="display:block; color:#6b7280; margin-top:3px;">HCO3 inicial: 11.0 ppm</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ingredientes -->
+    <div class="card">
+        <h2>🌾 Granos y 🌿 Lúpulos</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Maltas</h3>
+                <table><tbody><tr><td><strong>pilsner</strong></td><td style='text-align: right;'>4.050 kg</td></tr><tr><td><strong>wheat_light</strong></td><td style='text-align: right;'>0.337 kg</td></tr><tr><td><strong>crystal_30</strong></td><td style='text-align: right;'>0.169 kg</td></tr></tbody></table>
+            </div>
+            <div>
+                <h3>Lúpulos</h3>
+                <table><tbody>
+        <tr>
+            <td><strong>Cascade</strong></td>
+            <td>BOIL @ 60 min</td>
+            <td style="text-align: right;">6.0%</td>
+            <td style="text-align: right;"><strong>18.00 g</strong></td>
+        </tr>
+        
+        <tr>
+            <td><strong>Cascade</strong></td>
+            <td>BOIL @ 10 min</td>
+            <td style="text-align: right;">6.0%</td>
+            <td style="text-align: right;"><strong>22.50 g</strong></td>
+        </tr>
+        </tbody></table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
