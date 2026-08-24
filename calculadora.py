@@ -11,11 +11,12 @@ import recipeman as rm
 import salescalc as sales
 import mashacidadition as acidm
 import spargeacidadition as acids
+import watervolume as water
 
-mash_vol      = 8.5
-sparge_vol    = 8.0
-tot_volume    = 13.0# mash_vol + sparge_vol  # Litros de agua de macerado/lavado
-target_mash_ph = 5.3
+mash_vol         = 8.5
+final_vol        = 8.0
+preboil_max      = 19.0
+target_mash_ph   = 5.3
 target_sparge_ph = 5.5
 # Agua inicial (ej. Agua Ósmosis Inversa / Muy Blanda)
 ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0}
@@ -33,6 +34,16 @@ grains = details["resolved_grains"]
 acid = details["acid_info"]
 target_profile_name = recipe_data["water_settings"]["target_profile_id"]
 
+# 0. calcula volumenes de agua
+extra_water = water.calculate_water_volumes(final_vol, mash_vol, grains, preboil_volume_max=preboil_max)
+sparge_vol = extra_water["sparge_volume"]
+dilute_vol = extra_water["dilute_volume"]
+tot_volume = mash_vol + sparge_vol + dilute_vol
+
+print("--- ESTIMACIÓN DE VOLUMENES DE AGUA ---")
+print(f"Volumen para enjuague: {sparge_vol} l")
+print(f"Volumen para dilución: {dilute_vol} l\n")
+
 # 1. Consulta de un Ácido para la acidificación del lavado
 acid_selected = "Phosphoric 1M"
 acid_data = db.get_acid_info(acid_selected)
@@ -47,11 +58,6 @@ target_water = db.get_target_profile(target_profile_name)
 
 if target_water:
     print(f"Objetivo Ca2+: {target_water['ca']} ppm | SO4--: {target_water['so4']} ppm")
-
-# 3. Estimación de impacto por tipo de grano
-grain_category = "Crystal"
-grain_info = db.get_grain_factor(grain_category)
-print(f"Grano: {grain_category} | pH destilado est.: {grain_info['di_ph']}")
 
 # Calcular la combinación de sales
 receta = sales.solve_salt_additions(
