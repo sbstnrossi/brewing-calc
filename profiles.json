@@ -1,0 +1,200 @@
+{
+  "Yellow Balanced": {
+    "ca": 50.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 80.0,
+    "cl": 60.0,
+    "hco3": 50.0,
+    "description": "Cervezas rubias/doradas con equilibrio entre malta y lúpulo."
+  },
+  "Yellow Dry": {
+    "ca": 50.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 105.0,
+    "cl": 45.0,
+    "hco3": 50.0,
+    "description": "Cervezas rubias/doradas con amargor seco y lupulado."
+  },
+  "Yellow Full": {
+    "ca": 50.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 55.0,
+    "cl": 85.0,
+    "hco3": 50.0,
+    "description": "Cervezas rubias/doradas con mayor cuerpo y presencia de malta."
+  },
+  "Amber Balanced": {
+    "ca": 55.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 75.0,
+    "cl": 60.0,
+    "hco3": 85.0,
+    "description": "Cervezas ámbares a rojas balanceadas."
+  },
+  "Amber Dry": {
+    "ca": 55.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 110.0,
+    "cl": 45.0,
+    "hco3": 85.0,
+    "description": "Cervezas ámbares con acento en el amargor del lúpulo."
+  },
+  "Amber Full": {
+    "ca": 55.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 50.0,
+    "cl": 85.0,
+    "hco3": 85.0,
+    "description": "Cervezas ámbares con perfil pleno y maltoso."
+  },
+  "Brown Balanced": {
+    "ca": 60.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 70.0,
+    "cl": 60.0,
+    "hco3": 120.0,
+    "description": "Cervezas marrones/brown ales con perfil equilibrado."
+  },
+  "Brown Dry": {
+    "ca": 60.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 115.0,
+    "cl": 45.0,
+    "hco3": 120.0,
+    "description": "Cervezas marrones con final seco."
+  },
+  "Brown Full": {
+    "ca": 60.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 45.0,
+    "cl": 85.0,
+    "hco3": 120.0,
+    "description": "Cervezas marrones con énfasis en caramelo y malta."
+  },
+  "Black Balanced": {
+    "ca": 65.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 65.0,
+    "cl": 60.0,
+    "hco3": 160.0,
+    "description": "Stouts y Porters equilibradas."
+  },
+  "Black Dry": {
+    "ca": 65.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 120.0,
+    "cl": 45.0,
+    "hco3": 160.0,
+    "description": "Stouts/Porters secas e intensamente tostadas (ej. Dry Stout)."
+  },
+  "Black Full": {
+    "ca": 65.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 40.0,
+    "cl": 85.0,
+    "hco3": 160.0,
+    "description": "Stouts/Porters dulces o sedosas (ej. Sweet Stout, Oatmeal Stout)."
+  },
+  "NEIPA Juicy": {
+    "ca": 85.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 75.0,
+    "cl": 150.0,
+    "hco3": 40.0,
+    "description": "Perfil moderno de Hazy IPA / NEIPA con alta relación Cloruro/Sulfato para mayor sedosidad."
+  },
+  "Pale Ale": {
+      "ca": 140.0,
+      "mg": 18.0,
+      "na": 25.0,
+      "so4": 300.0,
+      "cl": 55.0,
+      "hco3": 110.0,
+      "description": "Pale Ale)."
+  },
+  "Burton on Trent": {
+    "ca": 295.0,
+    "mg": 45.0,
+    "na": 25.0,
+    "so4": 725.0,
+    "cl": 25.0,
+    "hco3": 300.0,
+    "description": "Perfil histórico de Burton-on-Trent para Pale Ales / English IPAs extremadamente lupuladas."
+  },
+  "Dublin": {
+    "ca": 120.0,
+    "mg": 4.0,
+    "na": 12.0,
+    "so4": 55.0,
+    "cl": 19.0,
+    "hco3": 315.0,
+    "description": "Perfil histórico de Dublín para Irish Dry Stouts."
+  },
+  "London": {
+    "ca": 70.0,
+    "mg": 6.0,
+    "na": 15.0,
+    "so4": 40.0,
+    "cl": 38.0,
+    "hco3": 166.0,
+    "description": "Perfil clásico de Londres para Porters y Mild Ales."
+  },
+  "Munich": {
+    "ca": 75.0,
+    "mg": 18.0,
+    "na": 2.0,
+    "so4": 10.0,
+    "cl": 2.0,
+    "hco3": 200.0,
+    "description": "Perfil histórico de Múnich para Dunkel, Doppelbock y Helles."
+  },
+  "Pilsen": {
+    "ca": 7.0,
+    "mg": 2.0,
+    "na": 2.0,
+    "so4": 6.0,
+    "cl": 5.0,
+    "hco3": 15.0,
+    "description": "Agua extremadamente blanda para Bohemian Pilsner."
+  },
+  "Dortmund": {
+    "ca": 225.0,
+    "mg": 40.0,
+    "na": 60.0,
+    "so4": 330.0,
+    "cl": 130.0,
+    "hco3": 220.0,
+    "description": "Perfil de agua mineralizada y dura para Dortmund Export."
+  },
+  "Vienna": {
+    "ca": 200.0,
+    "mg": 60.0,
+    "na": 8.0,
+    "so4": 125.0,
+    "cl": 12.0,
+    "hco3": 220.0,
+    "description": "Perfil histórico de Viena para Vienna Lager."
+  },
+  "Edinburgh": {
+    "ca": 120.0,
+    "mg": 25.0,
+    "na": 85.0,
+    "so4": 80.0,
+    "cl": 45.0,
+    "hco3": 220.0,
+    "description": "Perfil para Scottish Ales / Wee Heavy."
+  }
+}

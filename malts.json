@@ -1,0 +1,110 @@
+{
+  "pilsner": {
+    "name": "Malta Pilsen",
+    "category": "Base",
+    "di_ph": 5.75,
+    "buffering": 35.0
+  },
+  "pale_ale": {
+    "name": "Malta Pale Ale",
+    "category": "Base",
+    "di_ph": 5.70,
+    "buffering": 36.0
+  },
+  "vienna": {
+    "name": "Malta Vienna",
+    "category": "Base",
+    "di_ph": 5.55,
+    "buffering": 38.0
+  },
+  "munich_light": {
+    "name": "Malta Munich I (Light)",
+    "category": "Base",
+    "di_ph": 5.45,
+    "buffering": 40.0
+  },
+  "munich_dark": {
+    "name": "Malta Munich II (Dark)",
+    "category": "Base",
+    "di_ph": 5.35,
+    "buffering": 42.0
+  },
+  "wheat_light": {
+    "name": "Malta de Trigo Clara",
+    "category": "Base",
+    "di_ph": 6.00,
+    "buffering": 33.0
+  },
+  "oats_flaked": {
+    "name": "Avena Encopada (Flaked Oats)",
+    "category": "Adjunct",
+    "di_ph": 5.85,
+    "buffering": 32.0
+  },
+  "carapils": {
+    "name": "Carapils / Dextrin",
+    "category": "Crystal",
+    "di_ph": 5.50,
+    "buffering": 42.0
+  },
+  "crystal_20": {
+    "name": "Crystal / Caramel 20L",
+    "category": "Crystal",
+    "di_ph": 5.1,
+    "buffering": 55.0
+  },
+  "crystal_30": {
+    "name": "Crystal / Caramel 30L",
+    "category": "Crystal",
+    "di_ph": 5.0,
+    "buffering": 60.0
+  },
+  "crystal_60": {
+    "name": "Crystal / Caramel 60L",
+    "category": "Crystal",
+    "di_ph": 5.10,
+    "buffering": 48.0
+  },
+  "crystal_120": {
+    "name": "Crystal / Caramel 120L",
+    "category": "Crystal",
+    "di_ph": 4.95,
+    "buffering": 52.0
+  },
+  "special_b": {
+    "name": "Special B",
+    "category": "Crystal",
+    "di_ph": 4.85,
+    "buffering": 55.0
+  },
+  "chocolate": {
+    "name": "Malta Chocolate",
+    "category": "Roast",
+    "di_ph": 4.70,
+    "buffering": 60.0
+  },
+  "black_patent": {
+    "name": "Black Patent / Malta Negra",
+    "category": "Roast",
+    "di_ph": 4.55,
+    "buffering": 65.0
+  },
+  "roasted_barley": {
+    "name": "Cebada Tostada (Roasted Barley)",
+    "category": "Roast",
+    "di_ph": 4.60,
+    "buffering": 65.0
+  },
+  "carafa_special_3": {
+    "name": "Carafa Special III",
+    "category": "Roast",
+    "di_ph": 4.75,
+    "buffering": 58.0
+  },
+  "acidulated": {
+    "name": "Malta Acidulada (Sauermalz)",
+    "category": "Acid",
+    "di_ph": 3.40,
+    "buffering": 120.0
+  }
+}

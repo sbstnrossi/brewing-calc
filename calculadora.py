@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 19 15:10:45 2026
+
+@author: sebastian
+"""
+
+import brudataman as bdm
+import recipeman as rm
+import salescalc as sales
+import mashacidadition as acidm
+import spargeacidadition as acids
+
+mash_vol      = 8.5
+sparge_vol    = 8.0
+tot_volume    = 13.0# mash_vol + sparge_vol  # Litros de agua de macerado/lavado
+target_mash_ph = 5.3
+target_sparge_ph = 5.5
+# Agua inicial (ej. Agua Ósmosis Inversa / Muy Blanda)
+ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0}
+
+# Instanciar el gestor de datos
+db = bdm.BruDataManager()
+recipes = rm.RecipeManager()
+
+
+RECIPE_ID = "blonde_01"
+details = recipes.get_recipe_details(RECIPE_ID)
+
+recipe_data = details["recipe_raw"]
+grains = details["resolved_grains"]
+acid = details["acid_info"]
+target_profile_name = recipe_data["water_settings"]["target_profile_id"]
+
+# 1. Consulta de un Ácido para la acidificación del lavado
+acid_selected = "Phosphoric 1M"
+acid_data = db.get_acid_info(acid_selected)
+
+if acid_data:
+    conc = acid_data["concentration_pct"]
+    molarity = acid_data["molarity_mol_l"]
+    print(f"Ácido seleccionado: {acid_selected} | Conc: {conc}% | Molaridad: {molarity} M")
+
+# 2. Consulta de un Perfil Deseado de Agua
+target_water = db.get_target_profile(target_profile_name)
+
+if target_water:
+    print(f"Objetivo Ca2+: {target_water['ca']} ppm | SO4--: {target_water['so4']} ppm")
+
+# 3. Estimación de impacto por tipo de grano
+grain_category = "Crystal"
+grain_info = db.get_grain_factor(grain_category)
+print(f"Grano: {grain_category} | pH destilado est.: {grain_info['di_ph']}")
+
+# Calcular la combinación de sales
+receta = sales.solve_salt_additions(
+    source_profile=ro_water, 
+    target_profile=target_water, 
+    volume_liters=tot_volume
+)
+
+print("--- Sales recomendadas (gramos) ---")
+for salt, g in receta["salts_grams"].items():
+    print(f"  {sales.SALTS_DATABASE[salt]['name']}: {g} g")
+
+print("\n--- Comparación de Perfil ---")
+print(f"Objetivo  : {receta['target_profile']}")
+adj_water = receta['resulting_profile']
+print(f"Resultante: {receta['resulting_profile']}")
+print(f"Relación SO4/Cl: {receta['so4_cl_ratio']}")
+
+estimacion = acidm.estimate_unadjusted_mash_ph(
+    mash_volume_l=mash_vol,
+    water_profile=adj_water,
+    grain_bill=grains
+)
+
+print("--- ESTIMACIÓN DE pH DE MACERACIÓN (SIN ÁCIDO) ---")
+print(f"pH base de los granos (en agua destilada): {estimacion['weighted_di_ph']}")
+print(f"Aumento por Bicarbonatos: +{estimacion['alkalinity_ph_shift']} pH")
+print(f"Reducción por Ca/Mg:      {estimacion['minerals_ph_shift']} pH")
+print(f"-> pH NATURAL ESTIMADO:   {estimacion['estimated_unadjusted_ph']}\n")
+
+resultado_fosforico = acidm.calculate_mash_acid_addition(
+    mash_volume_l= mash_vol,
+    target_ph=target_mash_ph,
+    water_profile=adj_water,
+    grain_bill=grains,
+    acid_info=acid_data
+)
+
+print("--- RESULTADO ÁCIDO FOSFÓRICO 1M ---")
+print(f"Volumen necesario: {resultado_fosforico['acid_volume_ml']} mL")
+
+
+
+res_ro = acids.calculate_sparge_acid_addition(
+    sparge_volume_l=sparge_vol,
+    water_profile=ro_water,
+    target_sparge_ph=target_sparge_ph,
+    acid_info=acid_data
+)
+
+print("--- AGUA DE LAVADO RO ---")
+print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
+print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")

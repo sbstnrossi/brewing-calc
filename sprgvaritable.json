@@ -1,0 +1,28 @@
+{
+  "grain_types": {
+    "Base": {
+      "di_ph": 5.70,
+      "buffering_capacity": 35.0,
+      "ph_shift_factor": 0.00
+    },
+    "Crystal": {
+      "di_ph": 5.10,
+      "buffering_capacity": 45.0,
+      "ph_shift_factor": 0.08
+    },
+    "Roast": {
+      "di_ph": 4.70,
+      "buffering_capacity": 60.0,
+      "ph_shift_factor": 0.22
+    },
+    "Acidulated": {
+      "di_ph": 3.40,
+      "buffering_capacity": 120.0,
+      "ph_shift_factor": 0.95
+    }
+  },
+  "sparge_settings": {
+    "target_sparge_ph": 5.50,
+    "alkalinity_threshold_ppm": 20.0
+  }
+}

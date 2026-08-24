@@ -1,0 +1,82 @@
+{
+  "Lactic 88%": {
+    "name": "Ácido Láctico 88%",
+    "concentration_pct": 88.0,
+    "molarity_mol_l": 11.6,
+    "anion": "Lactate",
+    "equivalent_weight": 90.08,
+    "pka": 3.86,
+    "density_g_ml": 1.206,
+    "unit": "ml"
+  },
+  "Lactic 80%": {
+    "name": "Ácido Láctico 80%",
+    "concentration_pct": 80.0,
+    "molarity_mol_l": 10.3,
+    "anion": "Lactate",
+    "equivalent_weight": 90.08,
+    "pka": 3.86,
+    "density_g_ml": 1.190,
+    "unit": "ml"
+  },
+  "Phosphoric 85%": {
+    "name": "Ácido Fosfórico 85%",
+    "concentration_pct": 85.0,
+    "molarity_mol_l": 14.8,
+    "anion": "Phosphate",
+    "equivalent_weight": 98.00,
+    "pka": 2.15,
+    "density_g_ml": 1.685,
+    "unit": "ml"
+  },
+  "Phosphoric 75%": {
+    "name": "Ácido Fosfórico 75%",
+    "concentration_pct": 75.0,
+    "molarity_mol_l": 12.6,
+    "anion": "Phosphate",
+    "equivalent_weight": 98.00,
+    "pka": 2.15,
+    "density_g_ml": 1.579,
+    "unit": "ml"
+  },
+  "Phosphoric 10%": {
+    "name": "Ácido Fosfórico 10%",
+    "concentration_pct": 10.0,
+    "molarity_mol_l": 1.08,
+    "anion": "Phosphate",
+    "equivalent_weight": 98.00,
+    "pka": 2.15,
+    "density_g_ml": 1.057,
+    "unit": "ml"
+  },
+  "Phosphoric 1M": {
+    "name": "Ácido Fosfórico 1 Molar",
+    "concentration_pct": 9.3,
+    "molarity_mol_l": 1.00,
+    "anion": "Phosphate",
+    "equivalent_weight": 98.00,
+    "pka": 2.15,
+    "density_g_ml": 1.052,
+    "unit": "ml"
+  },
+  "Citric Acid (Powder)": {
+    "name": "Ácido Cítrico Anhidro",
+    "concentration_pct": 100.0,
+    "molarity_mol_l": 0.0,
+    "anion": "Citrate",
+    "equivalent_weight": 64.04,
+    "pka": 3.13,
+    "density_g_ml": 1.665,
+    "unit": "g"
+  },
+  "Acidulated Malt": {
+    "name": "Malta Acidulada (Sauermalz)",
+    "concentration_pct": 3.0,
+    "molarity_mol_l": 0.0,
+    "anion": "Lactate",
+    "equivalent_weight": 90.08,
+    "pka": 3.86,
+    "density_g_ml": 1.000,
+    "unit": "g"
+  }
+}

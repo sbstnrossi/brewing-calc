@@ -1,0 +1,85 @@
+{
+  "recipes": [
+    {
+      "id": "american_ipa_01",
+      "name": "West Coast IPA - Lote #1",
+      "style": "American IPA",
+      "volumes": {
+        "mash_liters": 22.0,
+        "sparge_liters": 14.0
+      },
+      "target_mash_ph": 5.35,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "pale_ale",
+        "acid_selected": "Lactic 88%"
+      },
+      "grain_bill": [
+        { "malt_id": "pale_ale", "weight_kg": 4.8 },
+        { "malt_id": "wheat_light", "weight_kg": 0.5 },
+        { "malt_id": "crystal_20", "weight_kg": 0.3 }
+      ]
+    },
+    {
+      "id": "dry_stout_01",
+      "name": "Irish Dry Stout - Lote #2",
+      "style": "Dry Stout",
+      "volumes": {
+        "mash_liters": 18.0,
+        "sparge_liters": 12.0
+      },
+      "target_mash_ph": 5.40,
+      "water_settings": {
+        "source_profile_id": "tap_water",
+        "target_profile_id": "black_balanced",
+        "acid_selected": "Phosphoric 85%"
+      },
+      "grain_bill": [
+        { "malt_id": "pilsner", "weight_kg": 3.8 },
+        { "malt_id": "roasted_barley", "weight_kg": 0.5 },
+        { "malt_id": "chocolate", "weight_kg": 0.2 },
+        { "malt_id": "oats_flaked", "weight_kg": 0.3 }
+      ]
+    },
+    {
+      "id": "blonde_01",
+      "name": "Blonde for HoneyBeer",
+      "style": "Blonde",
+      "volumes": {
+        "mash_liters": 8.5,
+        "sparge_liters": 8.0
+      },
+      "target_mash_ph": 5.35,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "Yellow Full",
+        "acid_selected": "Phosphoric 1M"
+      },
+      "grain_bill": [
+        { "malt_id": "pilsner", "weight_kg": 1.8 },
+        { "malt_id": "wheat_light", "weight_kg": 0.15 },
+        { "malt_id": "crystal_30", "weight_kg": 0.075 }
+      ]
+    },
+    {
+      "id": "apa_01",
+      "name": "APA from Palmer",
+      "style": "APA",
+      "volumes": {
+        "mash_liters": 8.0,
+        "sparge_liters": 9.0
+      },
+      "target_mash_ph": 5.3,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "Pale Ale",
+        "acid_selected": "Phosphoric 1M"
+      },
+      "grain_bill": [
+        { "malt_id": "pilsner", "weight_kg": 1.8 },
+        { "malt_id": "wheat_light", "weight_kg": 0.15 },
+        { "malt_id": "carapils", "weight_kg": 0.075 }
+      ]
+    }
+  ]
+}
