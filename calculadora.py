@@ -14,8 +14,8 @@ import spargeacidadition as acids
 import watervolume as water
 import htmlreport as report
 
-mash_vol         = 18.5
-final_vol        = 18.0
+mash_vol         = 8.5
+final_vol        = 8.0
 preboil_max      = 19.0
 target_mash_ph   = 5.3
 target_sparge_ph = 5.5

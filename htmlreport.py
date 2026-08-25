@@ -55,6 +55,62 @@ def generate_html_report(
             <td style="text-align: right;"><strong>{grams:.2f} g</strong></td>
         </tr>
         """
+    
+    # Extraer perfiles (si vienen como diccionarios o strings cargados)
+    target_prof = receta_calc.get('target_profile', {})
+    result_prof = receta_calc.get('resulting_profile', {})
+    
+    # Si vienen en formato dict, aseguramos obtener cada valor numérico:
+    target_ca = target_prof.get('ca', 0) if isinstance(target_prof, dict) else 0
+    target_mg = target_prof.get('mg', 0) if isinstance(target_prof, dict) else 0
+    target_na = target_prof.get('na', 0) if isinstance(target_prof, dict) else 0
+    target_so4 = target_prof.get('so4', 0) if isinstance(target_prof, dict) else 0
+    target_cl = target_prof.get('cl', 0) if isinstance(target_prof, dict) else 0
+    target_hco3 = target_prof.get('hco3', 0) if isinstance(target_prof, dict) else 0
+    
+    result_ca = result_prof.get('ca', 0) if isinstance(result_prof, dict) else 0
+    result_mg = result_prof.get('mg', 0) if isinstance(result_prof, dict) else 0
+    result_na = result_prof.get('na', 0) if isinstance(result_prof, dict) else 0
+    result_so4 = result_prof.get('so4', 0) if isinstance(result_prof, dict) else 0
+    result_cl = result_prof.get('cl', 0) if isinstance(result_prof, dict) else 0
+    result_hco3 = result_prof.get('hco3', 0) if isinstance(result_prof, dict) else 0
+    
+    # Generar la tabla HTML
+    water_profile_table = f"""
+    <table>
+        <thead>
+            <tr>
+                <th>Perfil (ppm)</th>
+                <th style="text-align: right;">Ca⁺²</th>
+                <th style="text-align: right;">Mg⁺²</th>
+                <th style="text-align: right;">Na⁺</th>
+                <th style="text-align: right;">SO₄⁻²</th>
+                <th style="text-align: right;">Cl⁻</th>
+                <th style="text-align: right;">HCO₃⁻</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Objetivo</strong></td>
+                <td style="text-align: right;">{target_ca:.1f}</td>
+                <td style="text-align: right;">{target_mg:.1f}</td>
+                <td style="text-align: right;">{target_na:.1f}</td>
+                <td style="text-align: right;">{target_so4:.1f}</td>
+                <td style="text-align: right;">{target_cl:.1f}</td>
+                <td style="text-align: right;">{target_hco3:.1f}</td>
+            </tr>
+            <tr>
+                <td><strong>Resultante</strong></td>
+                <td style="text-align: right;">{result_ca:.1f}</td>
+                <td style="text-align: right;">{result_mg:.1f}</td>
+                <td style="text-align: right;">{result_na:.1f}</td>
+                <td style="text-align: right;">{result_so4:.1f}</td>
+                <td style="text-align: right;">{result_cl:.1f}</td>
+                <td style="text-align: right;">{result_hco3:.1f}</td>
+            </tr>
+        </tbody>
+    </table>
+    """
 
     acid_selected = recipe.get("water_settings", {}).get("acid_selected", "Ácido")
 
@@ -139,12 +195,14 @@ def generate_html_report(
             </div>
             <div>
                 <h3>Perfil de Agua</h3>
-                <div class="metric-box" style="margin-bottom: 10px;">
+                <div class="metric-box" style="margin-bottom: 12px;">
                     <label>Relación SO4 / Cl</label>
                     <span>{receta_calc.get('so4_cl_ratio')}</span>
                 </div>
-                <p><strong>Perfil Objetivo:</strong> {receta_calc.get('target_profile')}</p>
-                <p><strong>Perfil Resultante:</strong> {receta_calc.get('resulting_profile')}</p>
+                {water_profile_table}
+                <small style="display:block; color:#6b7280; margin-top:8px;">
+                    <em>{target_prof.get('description', '') if isinstance(target_prof, dict) else ''}</em>
+                </small>
             </div>
         </div>
     </div>
