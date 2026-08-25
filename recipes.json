@@ -71,8 +71,7 @@
         { "malt_id": "crystal_30", "weight_kg": 0.075 }
       ],
       "hop_bill": [
-        { "hop_id": "cascade", "name": "Cascade", "weight_g": 8.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 60 },
-        { "hop_id": "cascade", "name": "Cascade", "weight_g": 10.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 10 }
+        { "hop_id": "magnum", "name": "Magnum", "weight_g": 5.0, "alpha_acid_pct": 12.0, "use": "boil", "time_min": 60 }
       ]
     },
     {
@@ -95,9 +94,36 @@
         { "malt_id": "carapils", "weight_kg": 0.075 }
       ],
       "hop_bill": [
-        { "hop_id": "magnum", "name": "Magnum", "weight_g": 7.0, "alpha_acid_pct": 12.0, "use": "boil", "time_min": 60 },
-        { "hop_id": "cascade", "name": "Cascade", "weight_g": 12.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 10 },
-        { "hop_id": "cascade", "name": "Cascade", "weight_g": 15.0, "alpha_acid_pct": 6.0, "use": "whirlpool", "time_min": 10 }
+        { "hop_id": "magnum", "name": "Magnum", "weight_g": 10.0, "alpha_acid_pct": 12.0, "use": "boil", "time_min": 60 },
+        { "hop_id": "columbus", "name": "Columbus", "weight_g": 3.5, "alpha_acid_pct": 14.5, "use": "boil", "time_min": 10 },
+        { "hop_id": "centenial", "name": "Centenial", "weight_g": 3.5, "alpha_acid_pct": 9.5, "use": "boil", "time_min": 10 },
+        { "hop_id": "columbus", "name": "Columbus", "weight_g": 7.0, "alpha_acid_pct": 14.5, "use": "whirlpool", "time_min": 0 },
+        { "hop_id": "centenial", "name": "Centenial", "weight_g": 7.0, "alpha_acid_pct": 9.5, "use": "whirlpool", "time_min": 0 }
+      ]
+    },
+    {
+      "id": "scottish_export_01",
+      "name": "Scottish Export",
+      "style": "Scottish",
+      "volumes": {
+        "mash_liters": 12.3,
+        "batch_volume_liters": 13.0
+      },
+      "target_mash_ph": 5.4,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "Brown Balanced",
+        "acid_selected": "Phosphoric 1M"
+      },
+      "grain_bill": [
+        { "malt_id": "pale_ale", "weight_kg": 3.75 },
+        { "malt_id": "crystal_120", "weight_kg": 0.3 },
+        { "malt_id": "crystal_60", "weight_kg": 0.15 },
+        { "malt_id": "chocolate", "weight_kg": 0.075 }
+      ],
+      "hop_bill": [
+        { "hop_id": "cascade", "name": "Cascade", "weight_g": 15.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 60 },
+        { "hop_id": "willamette", "name": "Willamette", "weight_g": 7.5, "alpha_acid_pct": 5.5, "use": "boil", "time_min": 15 }
       ]
     }
   ]

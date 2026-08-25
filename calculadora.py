@@ -14,10 +14,12 @@ import spargeacidadition as acids
 import watervolume as water
 import htmlreport as report
 
-mash_vol         = 8.5
-final_vol        = 8.0
+RECIPE_ID = "scottish_export_01"
+
+mash_vol         = 12.5
+final_vol        = 13.0
 preboil_max      = 19.0
-target_mash_ph   = 5.3
+target_mash_ph   = None
 target_sparge_ph = 5.5
 # Agua inicial (ej. Agua Ósmosis Inversa / Muy Blanda)
 ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0}
@@ -26,14 +28,14 @@ ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0
 db = bdm.BruDataManager()
 recipes = rm.RecipeManager()
 
-
-RECIPE_ID = "blonde_01"
 details = recipes.get_recipe_details(RECIPE_ID, target_volume_l=final_vol)
 
 recipe_data = details["recipe_raw"]
 grains = details["resolved_grains"]
 acid = details["acid_info"]
 target_profile_name = recipe_data["water_settings"]["target_profile_id"]
+if target_mash_ph == None:
+    target_mash_ph = recipe_data["target_mash_ph"]
 
 # 0. calcula volumenes de agua
 extra_water = water.calculate_water_volumes(final_vol, mash_vol, grains, preboil_volume_max=preboil_max)
