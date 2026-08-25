@@ -16,6 +16,7 @@ def generate_html_report(
     estimacion: Dict[str, Any], 
     resultado_fosforico: Dict[str, Any], 
     res_ro: Dict[str, Any], 
+    mash_vol: float,
     sparge_vol: float, 
     dilute_vol: float, 
     sales_db: Dict[str, Any],
@@ -169,11 +170,15 @@ def generate_html_report(
             </div>
             <div class="metric-box">
                 <label>Volumen Macerado</label>
-                <span>{recipe['volumes']['mash_liters']} L</span>
+                <span>{mash_vol} L</span>
             </div>
             <div class="metric-box">
                 <label>Volumen Enjuague</label>
                 <span>{sparge_vol:.2f} L</span>
+            </div>
+            <div class="metric-box">
+                <label>Volumen Dilución</label>
+                <span>{dilute_vol:.2f} L</span>
             </div>
         </div>
     </div>

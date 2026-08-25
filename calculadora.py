@@ -14,10 +14,10 @@ import spargeacidadition as acids
 import watervolume as water
 import htmlreport as report
 
-RECIPE_ID = "scottish_export_01"
+RECIPE_ID = "blonde_01"
 
-mash_vol         = 12.5
-final_vol        = 13.0
+mash_vol         = 16.0
+final_vol        = 21.0
 preboil_max      = 19.0
 target_mash_ph   = None
 target_sparge_ph = 5.5
@@ -36,6 +36,8 @@ acid = details["acid_info"]
 target_profile_name = recipe_data["water_settings"]["target_profile_id"]
 if target_mash_ph == None:
     target_mash_ph = recipe_data["target_mash_ph"]
+if mash_vol == None:
+    mash_vol = recipe_data["volumes"]["mash_liters"]
 
 # 0. calcula volumenes de agua
 extra_water = water.calculate_water_volumes(final_vol, mash_vol, grains, preboil_volume_max=preboil_max)
@@ -115,4 +117,4 @@ print("--- AGUA DE LAVADO RO ---")
 print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
 print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")
 
-report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, sparge_vol, dilute_vol, sales.SALTS_DATABASE)
+report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, mash_vol, sparge_vol, dilute_vol, sales.SALTS_DATABASE)
