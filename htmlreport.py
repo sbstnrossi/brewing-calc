@@ -45,6 +45,8 @@ def generate_html_report(
             <td style="text-align: right;"><strong>{h.get('weight_g'):.2f} g</strong></td>
         </tr>
         """
+        
+    yeast_row = f"<tr><td><strong>{recipe.get('yeast')}</strong></td></tr>"
 
     # 3. Filas de Sales Recomendadas
     salts_rows = ""
@@ -250,6 +252,10 @@ def generate_html_report(
             <div>
                 <h3>Lúpulos</h3>
                 <table><tbody>{hops_rows}</tbody></table>
+            </div>
+            <div>
+                <h3>Levadura</h3>
+                <table><tbody>{yeast_row}</tbody></table>
             </div>
         </div>
     </div>

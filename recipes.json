@@ -24,7 +24,8 @@
         { "hop_id": "centennial", "name": "Centennial", "weight_g": 30.0, "alpha_acid_pct": 9.5, "use": "boil", "time_min": 15 },
         { "hop_id": "citra", "name": "Citra", "weight_g": 40.0, "alpha_acid_pct": 12.5, "use": "whirlpool", "time_min": 15 },
         { "hop_id": "simcoe", "name": "Simcoe", "weight_g": 60.0, "alpha_acid_pct": 13.0, "use": "dry_hop", "time_days": 0 }
-      ]
+      ],
+      "yeast": "Safale S-05"
     },
     {
       "id": "dry_stout_01",
@@ -49,7 +50,8 @@
       "hop_bill": [
         { "hop_id": "east_kent_goldings", "name": "East Kent Goldings", "weight_g": 45.0, "alpha_acid_pct": 5.0, "use": "boil", "time_min": 60 },
         { "hop_id": "fuggles", "name": "Fuggles", "weight_g": 15.0, "alpha_acid_pct": 4.5, "use": "boil", "time_min": 15 }
-      ]
+      ],
+      "yeast": "Safale S-04"
     },
     {
       "id": "blonde_01",
@@ -72,7 +74,8 @@
       ],
       "hop_bill": [
         { "hop_id": "magnum", "name": "Magnum", "weight_g": 5.0, "alpha_acid_pct": 12.0, "use": "boil", "time_min": 60 }
-      ]
+      ],
+      "yeast": "Safale S-05"
     },
     {
       "id": "apa_01",
@@ -99,7 +102,8 @@
         { "hop_id": "centenial", "name": "Centenial", "weight_g": 3.5, "alpha_acid_pct": 9.5, "use": "boil", "time_min": 10 },
         { "hop_id": "columbus", "name": "Columbus", "weight_g": 7.0, "alpha_acid_pct": 14.5, "use": "whirlpool", "time_min": 0 },
         { "hop_id": "centenial", "name": "Centenial", "weight_g": 7.0, "alpha_acid_pct": 9.5, "use": "whirlpool", "time_min": 0 }
-      ]
+      ],
+      "yeast": "Safale S-05"
     },
     {
       "id": "scottish_export_01",
@@ -124,7 +128,8 @@
       "hop_bill": [
         { "hop_id": "cascade", "name": "Cascade", "weight_g": 15.0, "alpha_acid_pct": 6.0, "use": "boil", "time_min": 60 },
         { "hop_id": "willamette", "name": "Willamette", "weight_g": 7.5, "alpha_acid_pct": 5.5, "use": "boil", "time_min": 15 }
-      ]
+      ],
+      "yeast": "Safale S-04"
     }
   ]
 }

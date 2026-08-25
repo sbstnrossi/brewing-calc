@@ -17,7 +17,7 @@ import htmlreport as report
 RECIPE_ID = "blonde_01"
 
 mash_vol         = 16.0
-final_vol        = 21.0
+final_vol        = 20.0
 preboil_max      = 19.0
 target_mash_ph   = None
 target_sparge_ph = 5.5
