@@ -50,6 +50,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+reporte_receta.html
 
 # ==========================================
 # Testing and Coverage Caches
