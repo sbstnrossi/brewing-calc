@@ -1,0 +1,92 @@
+{
+  "batches": [
+    {
+      "id": "lote_2026_001",
+      "brew_date": "2026-08-17",
+      "recipe_id": "apa_01",
+      "target_batch_volume_l": 10.0,
+      
+      "mash": {
+        "water_l": 8.0,
+        "acid_added_ml": 0.0,
+        "avg_temp_c": 67.0,
+        "ph": 5.5,
+        "est_post_mash_vol_l": null
+      },
+      
+      "sparge": {
+        "water_l": 9.0,
+        "acid_added_ml": 1.25
+      },
+      
+      "boil": {
+        "est_pre_boil_vol_l": 14.5,
+        "est_post_boil_vol_l": null,
+        "dilution_water_added_l": 0.0
+      },
+      
+      "wort": {
+        "gravity_sg": 1.054,
+        "gravity_temp_c": 23.0,
+        "ph": 5.3,
+        "fermenter_vol_l": 10.0
+      },
+      
+      "fermentation": {
+        "days_fermenting": null,
+        "days_cold_crash": null
+      },
+      
+      "final_beer": {
+        "final_gravity_sg": 1.010,
+        "gravity_temp_c": 18.0,
+        "ph": 4.35,
+        "packaged_vol_l": 48.0
+      }
+    },
+    {
+      "id": "lote_2026_002",
+      "brew_date": "2026-08-22",
+      "recipe_id": "blonde_01",
+      "target_batch_volume_l": 10.0,
+      
+      "mash": {
+        "water_l": 8.5,
+        "acid_added_ml": 25.0,
+        "avg_temp_c": 65.5,
+        "ph": 5.4,
+        "est_post_mash_vol_l": null
+      },
+      
+      "sparge": {
+        "water_l": 8.0,
+        "acid_added_ml": 1.25
+      },
+      
+      "boil": {
+        "est_pre_boil_vol_l": 13.0,
+        "est_post_boil_vol_l": null,
+        "dilution_water_added_l": 0.0
+      },
+      
+      "wort": {
+        "gravity_sg": 1.042,
+        "gravity_temp_c": 24.0,
+        "ph": 5.2,
+        "fermenter_vol_l": 9.7
+      },
+      
+      "fermentation": {
+        "days_fermenting": null,
+        "days_cold_crash": null
+      },
+      
+      "final_beer": {
+        "final_gravity_sg": 1.010,
+        "gravity_temp_c": 18.0,
+        "ph": 4.35,
+        "packaged_vol_l": 48.0
+      }
+    }
+  ]
+}
