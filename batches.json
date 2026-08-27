@@ -70,7 +70,7 @@
       },
       
       "wort": {
-        "gravity_sg": 1.042,
+        "gravity_sg": 1.053,
         "gravity_temp_c": 24.0,
         "ph": 5.2,
         "fermenter_vol_l": 9.7

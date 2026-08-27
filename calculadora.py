@@ -13,6 +13,7 @@ import mashacidadition as acidm
 import spargeacidadition as acids
 import watervolume as water
 import htmlreport as report
+import batchman as bm
 
 RECIPE_ID = "blonde_01"
 
@@ -118,3 +119,10 @@ print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
 print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")
 
 report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, mash_vol, sparge_vol, dilute_vol, sales.SALTS_DATABASE)
+
+processed_batch = bm.process_batch_from_table("lote_2026_002")
+
+print(f"   - OG Medida: {processed_batch['wort']['gravity_sg']} @ {processed_batch['wort']['gravity_temp_c']}°C ➔ Corregida: {processed_batch['analytics']['og_corrected']}")
+print(f"   - FG Medida: {processed_batch['final_beer']['final_gravity_sg']} @ {processed_batch['final_beer']['gravity_temp_c']}°C ➔ Corregida: {processed_batch['analytics']['fg_corrected']}")
+print(f"   - Alcohol (% ABV): {processed_batch['analytics']['abv_pct']}%")
+print(f"   - Atenuación Aparente: {processed_batch['analytics']['apparent_attenuation_pct']}%\n")
