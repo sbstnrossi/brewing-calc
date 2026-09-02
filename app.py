@@ -16,15 +16,15 @@ def home():
         <h1>🍺 Brewing Calc API</h1>
         <p>Servidor activo en Google Cloud Run.</p>
         <ul>
-            <li><code>POST /api/lotes</code> - Guardar un lote en Firestore</li>
-            <li><code>GET /api/lotes/&lt;lote_id&gt;</code> - Obtener un lote de Firestore</li>
+            <li><code>POST /api/batches</code> - Guardar un lote en Firestore</li>
+            <li><code>GET /api/batches/&lt;lote_id&gt;</code> - Obtener un lote de Firestore</li>
         </ul>
     """)
 
 
-@app.route("/api/lotes", methods=["POST"])
+@app.route("/api/batches", methods=["POST"])
 def guardar_lote():
-    """Guarda un lote recibido en formato JSON dentro de la colección 'lotes'."""
+    """Guarda un lote recibido en formato JSON dentro de la colección 'batches'."""
     data = request.get_json()
     
     if not data or "id" not in data:
@@ -32,8 +32,8 @@ def guardar_lote():
 
     lote_id = data["id"]
     
-    # Referencia al documento en la colección 'lotes'
-    doc_ref = db.collection("lotes").document(lote_id)
+    # Referencia al documento en la colección 'batches'
+    doc_ref = db.collection("batches").document(lote_id)
     doc_ref.set(data, merge=True)
 
     return jsonify({
@@ -42,10 +42,10 @@ def guardar_lote():
     }), 201
 
 
-@app.route("/api/lotes/<lote_id>", methods=["GET"])
+@app.route("/api/batches/<lote_id>", methods=["GET"])
 def obtener_lote(lote_id):
     """Recupera un lote específico desde Firestore."""
-    doc_ref = db.collection("lotes").document(lote_id)
+    doc_ref = db.collection("batches").document(lote_id)
     doc = doc_ref.get()
 
     if doc.exists:
