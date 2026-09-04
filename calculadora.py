@@ -6,16 +6,13 @@ Created on Wed Aug 19 15:10:45 2026
 @author: sebastian
 """
 
+import core
 import brudataman as bdm
 import recipeman as rm
-import salescalc as sales
-import mashacidadition as acidm
-import spargeacidadition as acids
-import watervolume as water
 import htmlreport as report
 import batchman as bm
 
-RECIPE_ID = "blonde_01"
+RECIPE_ID = "apa_01"
 
 mash_vol         = 16.0
 final_vol        = 20.0
@@ -41,7 +38,7 @@ if mash_vol == None:
     mash_vol = recipe_data["volumes"]["mash_liters"]
 
 # 0. calcula volumenes de agua
-extra_water = water.calculate_water_volumes(final_vol, mash_vol, grains, preboil_volume_max=preboil_max)
+extra_water = core.calculate_water_volumes(final_vol, mash_vol, grains, preboil_volume_max=preboil_max)
 sparge_vol = extra_water["sparge_volume"]
 dilute_vol = extra_water["dilute_volume"]
 tot_volume = mash_vol + sparge_vol + dilute_vol
@@ -66,7 +63,7 @@ if target_water:
     print(f"Objetivo Ca2+: {target_water['ca']} ppm | SO4--: {target_water['so4']} ppm")
 
 # Calcular la combinación de sales
-receta_sales = sales.solve_salt_additions(
+receta_sales = core.solve_salt_additions(
     source_profile=ro_water, 
     target_profile=target_water, 
     volume_liters=tot_volume
@@ -74,7 +71,7 @@ receta_sales = sales.solve_salt_additions(
 
 print("--- Sales recomendadas (gramos) ---")
 for salt, g in receta_sales["salts_grams"].items():
-    print(f"  {sales.SALTS_DATABASE[salt]['name']}: {g} g")
+    print(f"  {core.SALTS_DATABASE[salt]['name']}: {g} g")
 
 print("\n--- Comparación de Perfil ---")
 print(f"Objetivo  : {receta_sales['target_profile']}")
@@ -82,7 +79,7 @@ adj_water = receta_sales['resulting_profile']
 print(f"Resultante: {receta_sales['resulting_profile']}")
 print(f"Relación SO4/Cl: {receta_sales['so4_cl_ratio']}")
 
-estimate_mash_ph = acidm.estimate_unadjusted_mash_ph(
+estimate_mash_ph = core.estimate_unadjusted_mash_ph(
     mash_volume_l=mash_vol,
     water_profile=adj_water,
     grain_bill=grains
@@ -94,7 +91,7 @@ print(f"Aumento por Bicarbonatos: +{estimate_mash_ph['alkalinity_ph_shift']} pH"
 print(f"Reducción por Ca/Mg:      {estimate_mash_ph['minerals_ph_shift']} pH")
 print(f"-> pH NATURAL ESTIMADO:   {estimate_mash_ph['estimated_unadjusted_ph']}\n")
 
-resultado_fosforico = acidm.calculate_mash_acid_addition(
+resultado_fosforico = core.calculate_mash_acid_addition(
     mash_volume_l= mash_vol,
     target_ph=target_mash_ph,
     water_profile=adj_water,
@@ -107,7 +104,7 @@ print(f"Volumen necesario: {resultado_fosforico['acid_volume_ml']} mL")
 
 
 
-res_ro = acids.calculate_sparge_acid_addition(
+res_ro = core.calculate_sparge_acid_addition(
     sparge_volume_l=sparge_vol,
     water_profile=ro_water,
     target_sparge_ph=target_sparge_ph,
@@ -118,7 +115,7 @@ print("--- AGUA DE LAVADO RO ---")
 print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
 print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")
 
-report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, mash_vol, sparge_vol, dilute_vol, sales.SALTS_DATABASE)
+report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, mash_vol, sparge_vol, dilute_vol, core.SALTS_DATABASE)
 
 processed_batch = bm.process_batch_from_table("lote_2026_002")
 

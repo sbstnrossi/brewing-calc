@@ -38,8 +38,8 @@
       },
       
       "final_beer": {
-        "final_gravity_sg": 1.010,
-        "gravity_temp_c": 18.0,
+        "final_gravity_sg": 1.008,
+        "gravity_temp_c": 10.0,
         "ph": 4.35,
         "packaged_vol_l": 48.0
       }
