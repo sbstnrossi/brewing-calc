@@ -77,15 +77,15 @@
       },
       
       "fermentation": {
-        "days_fermenting": null,
-        "days_cold_crash": null
+        "days_fermenting": 15,
+        "days_cold_crash": 4
       },
       
       "final_beer": {
-        "final_gravity_sg": 1.010,
-        "gravity_temp_c": 18.0,
-        "ph": 4.35,
-        "packaged_vol_l": 48.0
+        "final_gravity_sg": 1.004,
+        "gravity_temp_c": 11.0,
+        "ph": 3.8,
+        "packaged_vol_l": null
       }
     }
   ]
