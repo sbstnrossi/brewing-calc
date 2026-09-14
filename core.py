@@ -20,6 +20,9 @@ LOST_BOILING_PER_H = 3.25
 DUST_IN_BOIL_PROP  = 0.5
 DUST_IN_FERM_PROP  = 0.75
 
+# Temperatura estándar de calibración del densímetro
+CALIBRATION_TEMP_C = 20.0  
+
 # ==============================================================================
 # VOLUMENES DE AGUA
 # ==============================================================================
@@ -400,6 +403,41 @@ def calculate_sparge_acid_addition(
     }
 
 # ==============================================================================
-# 
+# ESTIMACION DE ALCOHOL
 # ==============================================================================
 
+def water_density(temp_c: float) -> float:
+    """Calcula la densidad del agua pura en kg/m³ según la fórmula ASBC/Kell."""
+    t = temp_c
+    num = (
+        999.83952
+        + 16.945176 * t
+        - 7.9870401e-3 * (t**2)
+        - 46.170461e-6 * (t**3)
+        + 105.56302e-9 * (t**4)
+        - 280.54253e-12 * (t**5)
+    )
+    den = 1 + 16.897850e-3 * t
+    return num / den
+
+
+def correct_gravity(sg_measured: float, temp_c: float, calib_temp_c: float = CALIBRATION_TEMP_C) -> float:
+    """
+    Ajusta la densidad específica (SG) según la temperatura de lectura 
+    con respecto a la temperatura de calibración del instrumento.
+    """
+    rho_calib = water_density(calib_temp_c)
+    rho_measured = water_density(temp_c)
+    sg_corrected = sg_measured * (rho_calib / rho_measured)
+    return round(sg_corrected, 4)
+
+
+def calculate_abv(og: float, fg: float) -> float:
+    """Calcula el porcentaje de alcohol por volumen (% ABV)."""
+    if og <= fg:
+        return 0.0
+    
+    abw = (76.08 * (og - fg)) / (1.775 - og)
+    abv = abw * (fg / 0.794)
+
+    return round(abv, 2)

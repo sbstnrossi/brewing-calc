@@ -8,46 +8,120 @@ Created on Thu Aug 27 12:07:21 2026
 
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
+import core
 
-CALIBRATION_TEMP_C = 20.0  # Temperatura estándar de calibración del densímetro
-
-
-def water_density(temp_c: float) -> float:
-    """Calcula la densidad del agua pura en kg/m³ según la fórmula ASBC/Kell."""
-    t = temp_c
-    num = (
-        999.83952
-        + 16.945176 * t
-        - 7.9870401e-3 * (t**2)
-        - 46.170461e-6 * (t**3)
-        + 105.56302e-9 * (t**4)
-        - 280.54253e-12 * (t**5)
-    )
-    den = 1 + 16.897850e-3 * t
-    return num / den
+# Intento de importación defensiva por si la librería no está instalada en un entorno local ligero
+try:
+    from google.cloud import firestore
+    FIRESTORE_AVAILABLE = True
+except ImportError:
+    FIRESTORE_AVAILABLE = False
 
 
-def correct_gravity(sg_measured: float, temp_c: float, calib_temp_c: float = CALIBRATION_TEMP_C) -> float:
-    """
-    Ajusta la densidad específica (SG) según la temperatura de lectura 
-    con respecto a la temperatura de calibración del instrumento.
-    """
-    rho_calib = water_density(calib_temp_c)
-    rho_measured = water_density(temp_c)
-    sg_corrected = sg_measured * (rho_calib / rho_measured)
-    return round(sg_corrected, 4)
+class RecipeManager:
+    def __init__(self, recipes_file: str = "recipes.json", malts_file: str = "malts.json"):
+        self.recipes_file = recipes_file
+        self.malts_file = malts_file
+        self.use_firestore = False
+        self.db = None
+
+        # Forzar modo offline vía variable de entorno si se desea (ej: FORCE_OFFLINE=1)
+        force_offline = os.getenv("FORCE_OFFLINE", "false").lower() in ("1", "true")
+
+        if FIRESTORE_AVAILABLE and not force_offline:
+            try:
+                # Intentar instanciar cliente con timeout corto para no bloquear la ejecución local
+                self.db = firestore.Client()
+                # Realizar una prueba rápida de lectura para verificar conectividad
+                self.recipes_ref = self.db.collection("recipes")
+                self.malts_ref = self.db.collection("malts")
+                self.use_firestore = True
+                print("🌐 [RecipeManager] Conectado exitosamente a Firestore.")
+            except Exception as e:
+                print(f"💻 [RecipeManager] No se pudo conectar a Firestore ({e}). Usando JSON local.")
+                self.use_firestore = False
+        else:
+            print("💻 [RecipeManager] Modo offline/local activo (Usando archivos JSON).")
+
+    # --- Métodos de apoyo para JSON local ---
+    def _read_json(self, filepath: str) -> Dict:
+        if not os.path.exists(filepath):
+            return {}
+        with open(filepath, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return {item.get("id", str(i)): item for i, item in enumerate(data)}
+                return data
+            except json.JSONDecodeError:
+                return {}
+
+    def _write_json(self, filepath: str, data: Dict) -> None:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(list(data.values()), f, indent=4, ensure_ascii=False)
+
+    # --- Operaciones de Dominio (Híbridas) ---
+    def get_recipe(self, recipe_id: str) -> Optional[Dict]:
+        """Obtiene una receta por su ID desde Firestore o JSON local."""
+        if self.use_firestore:
+            try:
+                doc = self.recipes_ref.document(recipe_id).get()
+                if doc.exists:
+                    return doc.to_dict()
+            except Exception as e:
+                print(f"⚠️ Error al consultar Firestore: {e}. Recurriendo a lectura local...")
+
+        # Fallback a JSON local
+        recipes = self._read_json(self.recipes_file)
+        return recipes.get(recipe_id)
+
+    def save_recipe(self, recipe_id: str, recipe_data: Dict) -> None:
+        """Guarda o actualiza una receta en Firestore y/o en el JSON local."""
+        recipe_data["id"] = recipe_id
+
+        # 1. Intentar guardar en Firestore si está disponible
+        if self.use_firestore:
+            try:
+                self.recipes_ref.document(recipe_id).set(recipe_data, merge=True)
+                print(f"✅ Receta '{recipe_id}' guardada en Firestore.")
+            except Exception as e:
+                print(f"⚠️ Error guardando en Firestore: {e}. Guardando localmente...")
+
+        # 2. Guardar SIEMPRE en local como copia de respaldo/sincronización
+        recipes = self._read_json(self.recipes_file)
+        recipes[recipe_id] = recipe_data
+        self._write_json(self.recipes_file, recipes)
+
+    def scale_recipe(self, recipe_id: str, target_volume_l: float) -> Dict:
+        """Escala los ingredientes de una receta para un nuevo volumen objetivo."""
+        recipe = self.get_recipe(recipe_id)
+        if not recipe:
+            raise ValueError(f"Receta '{recipe_id}' no encontrada.")
+
+        base_volume = float(recipe.get("target_volume_l", 20.0))
+        if base_volume <= 0:
+            raise ValueError("El volumen base de la receta debe ser mayor a 0.")
+
+        scale_factor = target_volume_l / base_volume
+        scaled_recipe = recipe.copy()
+        scaled_recipe["target_volume_l"] = target_volume_l
+
+        if "fermentables" in scaled_recipe:
+            scaled_recipe["fermentables"] = [
+                {**item, "amount_kg": round(item.get("amount_kg", 0) * scale_factor, 3)}
+                for item in scaled_recipe["fermentables"]
+            ]
+
+        if "hops" in scaled_recipe:
+            scaled_recipe["hops"] = [
+                {**item, "amount_g": round(item.get("amount_g", 0) * scale_factor, 2)}
+                for item in scaled_recipe["hops"]
+            ]
+
+        return scaled_recipe
 
 
-def calculate_abv(og: float, fg: float) -> float:
-    """Calcula el porcentaje de alcohol por volumen (% ABV)."""
-    if og <= fg:
-        return 0.0
-    
-    abw = (76.08 * (og - fg)) / (1.775 - og)
-    abv = abw * (fg / 0.794)
-
-    return round(abv, 2)
 
 
 def process_batch_data(batch: Dict[str, Any]) -> Dict[str, Any]:
@@ -57,17 +131,17 @@ def process_batch_data(batch: Dict[str, Any]) -> Dict[str, Any]:
     # Corrección de la Densidad Inicial (OG)
     raw_og = batch["wort"]["gravity_sg"]
     og_temp = batch["wort"]["gravity_temp_c"]
-    og_corr = correct_gravity(raw_og, og_temp)
+    og_corr = core.correct_gravity(raw_og, og_temp)
     batch["wort"]["corrected_gravity_sg"] = og_corr
 
     # Corrección de la Densidad Final (FG)
     raw_fg = batch["final_beer"]["final_gravity_sg"]
     fg_temp = batch["final_beer"]["gravity_temp_c"]
-    fg_corr = correct_gravity(raw_fg, fg_temp)
+    fg_corr = core.correct_gravity(raw_fg, fg_temp)
     batch["final_beer"]["corrected_gravity_sg"] = fg_corr
 
     # Cálculo de métricas
-    abv = calculate_abv(og_corr, fg_corr)
+    abv = core.calculate_abv(og_corr, fg_corr)
     attenuation = round(((og_corr - fg_corr) / (og_corr - 1.0)) * 100, 1) if og_corr > 1.0 else 0.0
 
     batch["analytics"] = {
@@ -128,47 +202,3 @@ def save_batch(batch_data: Dict[str, Any], filepath: str = "lotes.json") -> None
     print(f"   - FG Medida: {processed_batch['final_beer']['final_gravity_sg']} @ {processed_batch['final_beer']['gravity_temp_c']}°C ➔ Corregida: {processed_batch['analytics']['fg_corrected']}")
     print(f"   - Alcohol (% ABV): {processed_batch['analytics']['abv_pct']}%")
     print(f"   - Atenuación Aparente: {processed_batch['analytics']['apparent_attenuation_pct']}%\n")
-
-
-if __name__ == "__main__":
-    # Ejemplo de lote tomado a 28°C (OG) y 16°C (FG)
-    lote_ejemplo = {
-        "id": "lote_2026_001",
-        "brew_date": "2026-08-26",
-        "recipe_id": "american_ipa_01",
-        "target_batch_volume_l": 50.0,
-        "mash": {
-            "water_l": 55.0,
-            "acid_added_ml": 12.5,
-            "avg_temp_c": 65.5,
-            "ph": 5.38,
-            "est_post_mash_vol_l": 46.0
-        },
-        "sparge": {
-            "water_l": 35.0,
-            "acid_added_ml": 5.0
-        },
-        "boil": {
-            "est_pre_boil_vol_l": 72.0,
-            "est_post_boil_vol_l": 54.0,
-            "dilution_water_added_l": 2.0
-        },
-        "wort": {
-            "gravity_sg": 1.052,
-            "gravity_temp_c": 28.0,  # Medido a 28°C (corrige a ~1.054)
-            "ph": 5.20,
-            "fermenter_vol_l": 51.0
-        },
-        "fermentation": {
-            "days_fermenting": 10,
-            "days_cold_crash": 3
-        },
-        "final_beer": {
-            "final_gravity_sg": 1.011,
-            "gravity_temp_c": 16.0,  # Medido a 16°C (corrige a ~1.010)
-            "ph": 4.35,
-            "packaged_vol_l": 48.0
-        }
-    }
-
-    save_batch(lote_ejemplo)
