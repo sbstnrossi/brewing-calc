@@ -9,6 +9,7 @@ Created on Fri Sep  4 13:21:01 2026
 from typing import Dict, List, Any, Optional
 import numpy as np
 from scipy.optimize import nnls
+import warnings
 
 # ==============================================================================
 # PARAMETROS
@@ -47,7 +48,7 @@ def calculate_water_volumes(
     water_to_grist_ratio = mash_volume/total_weight
     
     if water_to_grist_ratio < 2.5 or water_to_grist_ratio > 5.0:
-        raise ValueError("Revisar cantidades de maltas y volumen de macerado.")
+        warnings.warn("Relacion agua a maltas {water_to_grist_ratio} l/kg.")
         
     retained_in_grains = RET_IN_GRAINS_PROP * total_weight
     preboil_volume_from_mash = mash_volume - retained_in_grains

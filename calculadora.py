@@ -115,7 +115,7 @@ print("--- AGUA DE LAVADO RO ---")
 print(f"HCO3 inicial: {res_ro['initial_alkalinity_ppm_hco3']} ppm")
 print(f"{acid_selected} necesario: {res_ro['sparge_acid_volume_ml']} mL\n")
 
-report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, mash_vol, sparge_vol, dilute_vol, core.SALTS_DATABASE)
+report.generate_html_report(recipe_data, receta_sales, estimate_mash_ph, resultado_fosforico, res_ro, final_vol, mash_vol, sparge_vol, dilute_vol, core.SALTS_DATABASE)
 
 processed_batch = bm.process_batch_from_table("lote_2026_002")
 
