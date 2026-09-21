@@ -6,9 +6,10 @@ Created on Thu Aug 27 12:07:21 2026
 @author: sebastian
 """
 
+from datetime import datetime, timezone
 import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional, Any
 import core
 
 # Intento de importación defensiva por si la librería no está instalada en un entorno local ligero
@@ -19,109 +20,92 @@ except ImportError:
     FIRESTORE_AVAILABLE = False
 
 
-class RecipeManager:
-    def __init__(self, recipes_file: str = "recipes.json", malts_file: str = "malts.json"):
-        self.recipes_file = recipes_file
-        self.malts_file = malts_file
+class BatchManager:
+    def __init__(self, lotes_file: str = "lotes.json"):
+        self.lotes_file = lotes_file
         self.use_firestore = False
         self.db = None
 
-        # Forzar modo offline vía variable de entorno si se desea (ej: FORCE_OFFLINE=1)
         force_offline = os.getenv("FORCE_OFFLINE", "false").lower() in ("1", "true")
 
         if FIRESTORE_AVAILABLE and not force_offline:
             try:
-                # Intentar instanciar cliente con timeout corto para no bloquear la ejecución local
                 self.db = firestore.Client()
-                # Realizar una prueba rápida de lectura para verificar conectividad
-                self.recipes_ref = self.db.collection("recipes")
-                self.malts_ref = self.db.collection("malts")
+                self.lotes_ref = self.db.collection("lotes")
                 self.use_firestore = True
-                print("🌐 [RecipeManager] Conectado exitosamente a Firestore.")
+                print("🌐 [BatchManager] Conectado a Firestore.")
             except Exception as e:
-                print(f"💻 [RecipeManager] No se pudo conectar a Firestore ({e}). Usando JSON local.")
+                print(f"💻 [BatchManager] Sin acceso a Firestore ({e}). Operando en modo local.")
                 self.use_firestore = False
         else:
-            print("💻 [RecipeManager] Modo offline/local activo (Usando archivos JSON).")
+            print("💻 [BatchManager] Modo offline/local activo.")
 
-    # --- Métodos de apoyo para JSON local ---
-    def _read_json(self, filepath: str) -> Dict:
-        if not os.path.exists(filepath):
+    @staticmethod
+    def calculate_hall_abv(og: float, fg: float) -> float:
+        """Fórmula de Michael Hall (Zymurgy 1995) para el cálculo de % ABV."""
+        if og <= fg or og <= 1.0:
+            return 0.0
+        abw = (76.08 * (og - fg)) / (1.775 - og)
+        abv = abw * (fg / 0.794)
+        return round(abv, 2)
+
+    # --- Auxiliares de lectura/escritura local ---
+    def _load_local_batches(self) -> Dict[str, Dict]:
+        if not os.path.exists(self.lotes_file):
             return {}
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(self.lotes_file, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
                 if isinstance(data, list):
-                    return {item.get("id", str(i)): item for i, item in enumerate(data)}
+                    return {item.get("id", f"lote_{i}"): item for i, item in enumerate(data)}
                 return data
             except json.JSONDecodeError:
                 return {}
 
-    def _write_json(self, filepath: str, data: Dict) -> None:
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(list(data.values()), f, indent=4, ensure_ascii=False)
+    def _save_local_batches(self, batches: Dict[str, Dict]) -> None:
+        with open(self.lotes_file, "w", encoding="utf-8") as f:
+            json.dump(list(batches.values()), f, indent=4, ensure_ascii=False)
 
-    # --- Operaciones de Dominio (Híbridas) ---
-    def get_recipe(self, recipe_id: str) -> Optional[Dict]:
-        """Obtiene una receta por su ID desde Firestore o JSON local."""
+    # --- Operaciones principales ---
+    def process_and_save_batch(self, batch_data: Dict) -> Dict:
+        """Calcula el ABV y guarda los datos del lote en Firestore y/o localmente."""
+        batch_id = batch_data.get("id")
+        if not batch_id:
+            raise ValueError("El lote debe contener un campo 'id'.")
+
+        og = float(batch_data.get("og", 1.000))
+        fg = float(batch_data.get("fg", 1.000))
+
+        # Cálculo de ABV universal con la fórmula de Hall
+        batch_data["abv"] = self.calculate_hall_abv(og, fg)
+        batch_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        # 1. Guardar en Firestore si está conectado
         if self.use_firestore:
             try:
-                doc = self.recipes_ref.document(recipe_id).get()
-                if doc.exists:
-                    return doc.to_dict()
+                self.lotes_ref.document(batch_id).set(batch_data, merge=True)
+                print(f"✅ Lote '{batch_id}' persistido en Firestore.")
             except Exception as e:
-                print(f"⚠️ Error al consultar Firestore: {e}. Recurriendo a lectura local...")
+                print(f"⚠️ Fallo al guardar en Firestore ({e}). Guardando localmente...")
 
-        # Fallback a JSON local
-        recipes = self._read_json(self.recipes_file)
-        return recipes.get(recipe_id)
+        # 2. Guardar localmente siempre
+        batches = self._load_local_batches()
+        batches[batch_id] = batch_data
+        self._save_local_batches(batches)
 
-    def save_recipe(self, recipe_id: str, recipe_data: Dict) -> None:
-        """Guarda o actualiza una receta en Firestore y/o en el JSON local."""
-        recipe_data["id"] = recipe_id
+        return batch_data
 
-        # 1. Intentar guardar en Firestore si está disponible
+    def list_batches(self) -> List[Dict]:
+        """Devuelve la lista completa de lotes registrados."""
         if self.use_firestore:
             try:
-                self.recipes_ref.document(recipe_id).set(recipe_data, merge=True)
-                print(f"✅ Receta '{recipe_id}' guardada en Firestore.")
+                docs = self.lotes_ref.stream()
+                return [doc.to_dict() for doc in docs]
             except Exception as e:
-                print(f"⚠️ Error guardando en Firestore: {e}. Guardando localmente...")
+                print(f"⚠️ Error leyendo Firestore: {e}. Leyendo archivo JSON local...")
 
-        # 2. Guardar SIEMPRE en local como copia de respaldo/sincronización
-        recipes = self._read_json(self.recipes_file)
-        recipes[recipe_id] = recipe_data
-        self._write_json(self.recipes_file, recipes)
-
-    def scale_recipe(self, recipe_id: str, target_volume_l: float) -> Dict:
-        """Escala los ingredientes de una receta para un nuevo volumen objetivo."""
-        recipe = self.get_recipe(recipe_id)
-        if not recipe:
-            raise ValueError(f"Receta '{recipe_id}' no encontrada.")
-
-        base_volume = float(recipe.get("target_volume_l", 20.0))
-        if base_volume <= 0:
-            raise ValueError("El volumen base de la receta debe ser mayor a 0.")
-
-        scale_factor = target_volume_l / base_volume
-        scaled_recipe = recipe.copy()
-        scaled_recipe["target_volume_l"] = target_volume_l
-
-        if "fermentables" in scaled_recipe:
-            scaled_recipe["fermentables"] = [
-                {**item, "amount_kg": round(item.get("amount_kg", 0) * scale_factor, 3)}
-                for item in scaled_recipe["fermentables"]
-            ]
-
-        if "hops" in scaled_recipe:
-            scaled_recipe["hops"] = [
-                {**item, "amount_g": round(item.get("amount_g", 0) * scale_factor, 2)}
-                for item in scaled_recipe["hops"]
-            ]
-
-        return scaled_recipe
-
-
+        batches = self._load_local_batches()
+        return list(batches.values())
 
 
 def process_batch_data(batch: Dict[str, Any]) -> Dict[str, Any]:
