@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, render_template, redirect, url_for
 from google.cloud import firestore
 from recipeman import RecipeManager
 from batchman import BatchManager
@@ -134,14 +134,56 @@ def sync_tables():
     success, msg = sync_utils.sync_json_to_firestore("recipes", "recipes.json")
     return jsonify({"success": success, "message": msg})
 
+
+# -------------------------------------------------------------------
+# Vistas de Gestión de Tablas
+# -------------------------------------------------------------------
+
+@app.route("/tables")
+def tables_dashboard():
+    """Vista principal de gestión de tablas: muestra resumen de colecciones."""
+    recipes_ref = db.collection("recipes").stream()
+    recipes = [doc.to_dict() | {"id": doc.id} for doc in recipes_ref]
+
+    water_profiles_ref = db.collection("profiles").stream()
+    water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
+
+    return render_template("tables.html", recipes=recipes, water_profiles=water_profiles)
+
+@app.route("/tables/recipe/new", methods=["GET"])
+def new_recipe_form():
+    """Muestra el formulario para crear una nueva receta."""
+    return render_template("recipe_form.html")
+
 @app.route("/tables/recipe/add", methods=["POST"])
 def add_recipe():
-    recipe_data = request.json
-    doc_ref = db.collection("recipes").document()
-    recipe_data["id"] = doc_ref.id
-    doc_ref.set(recipe_data)
-    return jsonify({"status": "ok", "id": doc_ref.id})
+    """Recibe los datos del formulario y los guarda en Firestore."""
+    try:
+        data = request.form
+        
+        # Procesamos la estructura de la receta
+        recipe_doc = {
+            "name": data.get("name"),
+            "style": data.get("style"),
+            "target_og": float(data.get("target_og", 1.050)),
+            "target_fg": float(data.get("target_fg", 1.010)),
+            "ibu": int(data.get("ibu", 0)),
+            "ebc": float(data.get("ebc", 0.0)),
+            "batch_size_l": float(data.get("batch_size_l", 20.0)),
+            "mash_temp": float(data.get("mash_temp", 65.0)),
+            "boil_time_min": int(data.get("boil_time_min", 60)),
+            "notes": data.get("notes", ""),
+        }
 
+        # Guardar en la colección 'recipes' de Firestore
+        doc_ref = db.collection("recipes").document()
+        recipe_doc["id"] = doc_ref.id
+        doc_ref.set(recipe_doc)
+
+        return redirect(url_for("tables_dashboard"))
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 if __name__ == "__main__":
     # Toma el puerto de Cloud Run ($PORT) o usa 8080 en ejecuciones locales

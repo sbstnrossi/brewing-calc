@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Receta - Brewing Calc</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; }
+        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
+        input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .btn-group { display: flex; justify-content: space-between; margin-top: 20px; }
+        .btn { padding: 10px 20px; border-radius: 5px; color: white; text-decoration: none; border: none; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #2ecc71; }
+        .btn-cancel { background: #95a5a6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍺 Cargar Nueva Receta</h1>
+        <form action="/tables/recipe/add" method="POST">
+            
+            <div class="form-group">
+                <label for="name">Nombre de la Receta</label>
+                <input type="text" id="name" name="name" required placeholder="Ej: American IPA v1">
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="style">Estilo BJCP</label>
+                    <input type="text" id="style" name="style" placeholder="Ej: 21A. American IPA">
+                </div>
+                <div class="form-group">
+                    <label for="batch_size_l">Volumen del Lote (Litros)</label>
+                    <input type="number" step="0.5" id="batch_size_l" name="batch_size_l" value="20">
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="form-group">
+                    <label for="target_og">Densidad Inicial (OG)</label>
+                    <input type="number" step="0.001" id="target_og" name="target_og" value="1.052" required>
+                </div>
+                <div class="form-group">
+                    <label for="target_fg">Densidad Final (FG)</label>
+                    <input type="number" step="0.001" id="target_fg" name="target_fg" value="1.010" required>
+                </div>
+                <div class="form-group">
+                    <label for="ibu">IBUs Estimados</label>
+                    <input type="number" id="ibu" name="ibu" value="45">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="mash_temp">Temp. Macerado (°C)</label>
+                    <input type="number" step="0.5" id="mash_temp" name="mash_temp" value="65.5">
+                </div>
+                <div class="form-group">
+                    <label for="boil_time_min">Tiempo Hervor (Min)</label>
+                    <input type="number" id="boil_time_min" name="boil_time_min" value="60">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notas / Observaciones</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Detalles de fermentación, perfil deseado, etc."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <a href="/tables" class="btn btn-cancel">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar Receta</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

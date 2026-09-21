@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Tablas - Brewing Calc</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; }
+        .actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 10px 16px; text-decoration: none; border-radius: 5px; color: white; background: #3498db; font-weight: bold; cursor: pointer; border: none; }
+        .btn-success { background: #2ecc71; }
+        .btn-secondary { background: #7f8c8d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f8f9fa; }
+        .badge { background: #e0e0e0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Gestión de Tablas</h1>
+
+        <div class="actions">
+            <a href="/tables/recipe/new" class="btn btn-success">+ Nueva Receta</a>
+            <button onclick="syncJson()" class="btn btn-secondary">🔄 Sincronizar desde JSON</button>
+        </div>
+
+        <h2>📖 Recetas Cargadas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Estilo</th>
+                    <th>OG Deseada</th>
+                    <th>FG Deseada</th>
+                    <th>IBU</th>
+                    <th>Temp Macerado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipe in recipes %}
+                <tr>
+                    <td><strong>{{ recipe.name }}</strong></td>
+                    <td><span class="badge">{{ recipe.style }}</span></td>
+                    <td>{{ recipe.target_og }}</td>
+                    <td>{{ recipe.target_fg }}</td>
+                    <td>{{ recipe.ibu }}</td>
+                    <td>{{ recipe.mash_temp }} °C</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center;">No hay recetas cargadas en Firestore.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2 style="margin-top: 40px;">💧 Perfiles de Agua</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Ca (ppm)</th>
+                    <th>Mg (ppm)</th>
+                    <th>Na (ppm)</th>
+                    <th>SO4 (ppm)</th>
+                    <th>Cl (ppm)</th>
+                    <th>HCO3 (ppm)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for water in water_profiles %}
+                <tr>
+                    <td><strong>{{ water.name }}</strong></td>
+                    <td>{{ water.ca }}</td>
+                    <td>{{ water.mg }}</td>
+                    <td>{{ water.na }}</td>
+                    <td>{{ water.so4 }}</td>
+                    <td>{{ water.cl }}</td>
+                    <td>{{ water.hco3 }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align:center;">No hay perfiles de agua cargados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function syncJson() {
+            if (!confirm("¿Deseas sincronizar Firestore con los archivos JSON locales?")) return;
+            const res = await fetch("/tables/sync", { method: "POST" });
+            const data = await res.json();
+            alert(data.message);
+            location.reload();
+        }
+    </script>
+</body>
+</html>
