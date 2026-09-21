@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template_string
 from google.cloud import firestore
 from recipeman import RecipeManager
 from batchman import BatchManager
+import sync_utils
 
 app = Flask(__name__)
 
@@ -124,6 +125,22 @@ def obtener_lote(lote_id):
         return jsonify(doc.to_dict()), 200
     
     return jsonify({"error": f"El lote '{lote_id}' no existe."}), 404
+
+# --- RUTAS DE GESTION DE TABLAS ---
+@app.route("/tables/sync", methods=["POST"])
+def sync_tables():
+    # Sincroniza las recetas desde el archivo local si querés hacer un restore
+    # TODO recorrer jsons y comparar
+    success, msg = sync_utils.sync_json_to_firestore("recipes", "recipes.json")
+    return jsonify({"success": success, "message": msg})
+
+@app.route("/tables/recipe/add", methods=["POST"])
+def add_recipe():
+    recipe_data = request.json
+    doc_ref = db.collection("recipes").document()
+    recipe_data["id"] = doc_ref.id
+    doc_ref.set(recipe_data)
+    return jsonify({"status": "ok", "id": doc_ref.id})
 
 
 if __name__ == "__main__":
