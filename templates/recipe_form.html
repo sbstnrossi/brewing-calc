@@ -5,76 +5,243 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Receta - Brewing Calc</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; }
-        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1, h3 { color: #2c3e50; }
+        .section-title { border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 30px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #34495e; }
         input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-        .btn-group { display: flex; justify-content: space-between; margin-top: 20px; }
-        .btn { padding: 10px 20px; border-radius: 5px; color: white; text-decoration: none; border: none; cursor: pointer; font-weight: bold; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
+        
+        /* Estilos de tablas dinámicas */
+        .dynamic-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .dynamic-table th { background: #ecf0f1; padding: 8px; text-align: left; font-size: 0.85em; }
+        .dynamic-table td { padding: 5px; border-bottom: 1px solid #eee; }
+        
+        .btn { padding: 8px 16px; border-radius: 5px; color: white; text-decoration: none; border: none; cursor: pointer; font-weight: bold; }
         .btn-primary { background: #2ecc71; }
+        .btn-add { background: #3498db; font-size: 0.85em; padding: 6px 12px; }
+        .btn-remove { background: #e74c3c; font-size: 0.8em; padding: 4px 8px; border-radius: 3px; }
         .btn-cancel { background: #95a5a6; }
+        .btn-group { display: flex; justify-content: space-between; margin-top: 30px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🍺 Cargar Nueva Receta</h1>
-        <form action="/tables/recipe/add" method="POST">
+        <form id="recipeForm">
             
-            <div class="form-group">
-                <label for="name">Nombre de la Receta</label>
-                <input type="text" id="name" name="name" required placeholder="Ej: American IPA v1">
-            </div>
-
+            <!-- INFORMACIÓN GENERAL -->
+            <h3 class="section-title">1. Parámetros Generales</h3>
             <div class="grid-2">
                 <div class="form-group">
-                    <label for="style">Estilo BJCP</label>
-                    <input type="text" id="style" name="style" placeholder="Ej: 21A. American IPA">
+                    <label>Nombre de la Receta *</label>
+                    <input type="text" id="name" required placeholder="Ej: Neipa Tropical">
                 </div>
                 <div class="form-group">
-                    <label for="batch_size_l">Volumen del Lote (Litros)</label>
-                    <input type="number" step="0.5" id="batch_size_l" name="batch_size_l" value="20">
+                    <label>Estilo BJCP</label>
+                    <input type="text" id="style" placeholder="Ej: 21B. Specialty IPA">
+                </div>
+            </div>
+
+            <div class="grid-4">
+                <div class="form-group">
+                    <label>Volumen (L)</label>
+                    <input type="number" step="0.5" id="batch_size_l" value="20">
+                </div>
+                <div class="form-group">
+                    <label>OG Objetivo</label>
+                    <input type="number" step="0.001" id="target_og" value="1.052" required>
+                </div>
+                <div class="form-group">
+                    <label>FG Objetivo</label>
+                    <input type="number" step="0.001" id="target_fg" value="1.010" required>
+                </div>
+                <div class="form-group">
+                    <label>pH Objetivo</label>
+                    <input type="number" step="0.1" id="target_ph" value="5.3">
                 </div>
             </div>
 
             <div class="grid-3">
                 <div class="form-group">
-                    <label for="target_og">Densidad Inicial (OG)</label>
-                    <input type="number" step="0.001" id="target_og" name="target_og" value="1.052" required>
+                    <label>Perfil de Agua Objetivo</label>
+                    <select id="target_water_profile_id">
+                        <option value="">-- Seleccionar Perfil --</option>
+                        {% for wp in water_profiles %}
+                            <option value="{{ wp.id }}">{{ wp.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="target_fg">Densidad Final (FG)</label>
-                    <input type="number" step="0.001" id="target_fg" name="target_fg" value="1.010" required>
+                    <label>Levadura</label>
+                    <input type="text" id="yeast" placeholder="Ej: Lallemand Verdant IPA / US-05">
                 </div>
                 <div class="form-group">
-                    <label for="ibu">IBUs Estimados</label>
-                    <input type="number" id="ibu" name="ibu" value="45">
+                    <label>Temp Macerado (°C)</label>
+                    <input type="number" step="0.5" id="mash_temp" value="65.5">
                 </div>
             </div>
 
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="mash_temp">Temp. Macerado (°C)</label>
-                    <input type="number" step="0.5" id="mash_temp" name="mash_temp" value="65.5">
-                </div>
-                <div class="form-group">
-                    <label for="boil_time_min">Tiempo Hervor (Min)</label>
-                    <input type="number" id="boil_time_min" name="boil_time_min" value="60">
-                </div>
-            </div>
+            <!-- FERMENTABLES / GRANOS -->
+            <h3 class="section-title">2. Granos y Fermentables</h3>
+            <table class="dynamic-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Nombre del Grano</th>
+                        <th style="width: 25%;">Cantidad (kg)</th>
+                        <th style="width: 15%;">Color (EBC)</th>
+                        <th style="width: 10%;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="fermentablesTable">
+                    <!-- Filas dinámicas -->
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-add" onclick="addFermentableRow()">+ Agregar Grano</button>
 
+            <!-- LÚPULOS -->
+            <h3 class="section-title">3. Lúpulos y Adiciones</h3>
+            <table class="dynamic-table">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Nombre</th>
+                        <th style="width: 15%;">Gramos (g)</th>
+                        <th style="width: 15%;">Tiempo (min)</th>
+                        <th style="width: 15%;">Alpha Acid %</th>
+                        <th style="width: 10%;">Uso</th>
+                        <th style="width: 10%;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="hopsTable">
+                    <!-- Filas dinámicas -->
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-add" onclick="addHopRow()">+ Agregar Lúpulo</button>
+
+            <!-- NOTAS -->
+            <h3 class="section-title">4. Notas</h3>
             <div class="form-group">
-                <label for="notes">Notas / Observaciones</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Detalles de fermentación, perfil deseado, etc."></textarea>
+                <textarea id="notes" rows="3" placeholder="Instrucciones especiales de macerado, fermentación o perfil aromático..."></textarea>
             </div>
 
+            <!-- BOTONES -->
             <div class="btn-group">
                 <a href="/tables" class="btn btn-cancel">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Guardar Receta</button>
+                <button type="submit" class="btn btn-primary">Guardar Receta Completa</button>
             </div>
         </form>
     </div>
+
+    <script>
+        // Agregar fila de Grano
+        function addFermentableRow(name = '', amount = '', ebc = '') {
+            const tbody = document.getElementById('fermentablesTable');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="f-name" value="${name}" placeholder="Ej: Malta Pale Ale" required></td>
+                <td><input type="number" step="0.01" class="f-amount" value="${amount}" placeholder="Ej: 4.5" required></td>
+                <td><input type="number" step="0.1" class="f-ebc" value="${ebc}" placeholder="Ej: 6"></td>
+                <td><button type="button" class="btn btn-remove" onclick="this.closest('tr').remove()">X</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Agregar fila de Lúpulo
+        function addHopRow(name = '', amount = '', time = '', aa = '', use = 'Hervor') {
+            const tbody = document.getElementById('hopsTable');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="h-name" value="${name}" placeholder="Ej: Citra" required></td>
+                <td><input type="number" step="1" class="h-amount" value="${amount}" placeholder="30" required></td>
+                <td><input type="number" step="1" class="h-time" value="${time}" placeholder="60"></td>
+                <td><input type="number" step="0.1" class="h-aa" value="${aa}" placeholder="12.5"></td>
+                <td>
+                    <select class="h-use">
+                        <option value="Hervor" ${use==='Hervor'?'selected':''}>Hervor</option>
+                        <option value="First Wort" ${use==='First Wort'?'selected':''}>First Wort</option>
+                        <option value="Whirlpool" ${use==='Whirlpool'?'selected':''}>Whirlpool</option>
+                        <option value="Dry Hop" ${use==='Dry Hop'?'selected':''}>Dry Hop</option>
+                    </select>
+                </td>
+                <td><button type="button" class="btn btn-remove" onclick="this.closest('tr').remove()">X</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Cargar 1 fila por defecto en cada tabla al abrir
+        window.onload = function() {
+            addFermentableRow();
+            addHopRow();
+        };
+
+        // Procesar formulario y enviar JSON a Flask
+        document.getElementById('recipeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Recopilar Fermentables
+            const fermentables = [];
+            document.querySelectorAll('#fermentablesTable tr').forEach(row => {
+                const name = row.querySelector('.f-name').value;
+                const amount = parseFloat(row.querySelector('.f-amount').value) || 0;
+                const ebc = parseFloat(row.querySelector('.f-ebc').value) || 0;
+                if (name && amount > 0) {
+                    fermentables.push({ name, amount_kg: amount, color_ebc: ebc });
+                }
+            });
+
+            // Recopilar Lúpulos
+            const hops = [];
+            document.querySelectorAll('#hopsTable tr').forEach(row => {
+                const name = row.querySelector('.h-name').value;
+                const amount = parseFloat(row.querySelector('.h-amount').value) || 0;
+                const time = parseInt(row.querySelector('.h-time').value) || 0;
+                const aa = parseFloat(row.querySelector('.h-aa').value) || 0;
+                const use = row.querySelector('.h-use').value;
+                if (name && amount > 0) {
+                    hops.push({ name, amount_g: amount, time_min: time, alpha_acid: aa, use });
+                }
+            });
+
+            // Payload completo
+            const payload = {
+                name: document.getElementById('name').value,
+                style: document.getElementById('style').value,
+                batch_size_l: parseFloat(document.getElementById('batch_size_l').value) || 20,
+                target_og: parseFloat(document.getElementById('target_og').value) || 1.050,
+                target_fg: parseFloat(document.getElementById('target_fg').value) || 1.010,
+                target_ph: parseFloat(document.getElementById('target_ph').value) || 5.3,
+                target_water_profile_id: document.getElementById('target_water_profile_id').value,
+                yeast: document.getElementById('yeast').value,
+                mash_temp: parseFloat(document.getElementById('mash_temp').value) || 65,
+                notes: document.getElementById('notes').value,
+                fermentables: fermentables,
+                hops: hops
+            };
+
+            // Envío por API Fetch
+            try {
+                const response = await fetch('/tables/recipe/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const resData = await response.json();
+
+                if (response.ok && resData.status === 'ok') {
+                    window.location.href = resData.redirect_url;
+                } else {
+                    alert('Error al guardar la receta: ' + (resData.message || 'Error desconocido'));
+                }
+            } catch (err) {
+                alert('Error de red al conectar con el servidor.');
+                console.error(err);
+            }
+        });
+    </script>
 </body>
 </html>

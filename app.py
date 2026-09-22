@@ -152,27 +152,38 @@ def tables_dashboard():
 
 @app.route("/tables/recipe/new", methods=["GET"])
 def new_recipe_form():
-    """Muestra el formulario para crear una nueva receta."""
-    return render_template("recipe_form.html")
+    """Carga los perfiles de agua existentes para el selector y muestra el formulario."""
+    water_profiles_ref = db.collection("water_profiles").stream()
+    water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
+    
+    return render_template("recipe_form.html", water_profiles=water_profiles)
+
 
 @app.route("/tables/recipe/add", methods=["POST"])
 def add_recipe():
-    """Recibe los datos del formulario y los guarda en Firestore."""
+    """Recibe la receta completa en formato JSON y la guarda en Firestore."""
     try:
-        data = request.form
-        
-        # Procesamos la estructura de la receta
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No se recibieron datos en JSON"}), 400
+
+        # Documento estructurado para Firestore
         recipe_doc = {
             "name": data.get("name"),
             "style": data.get("style"),
+            "batch_size_l": float(data.get("batch_size_l", 20.0)),
             "target_og": float(data.get("target_og", 1.050)),
             "target_fg": float(data.get("target_fg", 1.010)),
-            "ibu": int(data.get("ibu", 0)),
-            "ebc": float(data.get("ebc", 0.0)),
-            "batch_size_l": float(data.get("batch_size_l", 20.0)),
+            "target_ph": float(data.get("target_ph", 5.3)),
+            "target_water_profile_id": data.get("target_water_profile_id", ""),
+            "yeast": data.get("yeast", ""),
+            "ibu": float(data.get("ibu", 0)),
+            "ebc": float(data.get("ebc", 0)),
             "mash_temp": float(data.get("mash_temp", 65.0)),
             "boil_time_min": int(data.get("boil_time_min", 60)),
-            "notes": data.get("notes", ""),
+            "fermentables": data.get("fermentables", []),  # Lista de dicts
+            "hops": data.get("hops", []),                 # Lista de dicts
+            "notes": data.get("notes", "")
         }
 
         # Guardar en la colección 'recipes' de Firestore
@@ -180,10 +191,10 @@ def add_recipe():
         recipe_doc["id"] = doc_ref.id
         doc_ref.set(recipe_doc)
 
-        return redirect(url_for("tables_dashboard"))
+        return jsonify({"status": "ok", "redirect_url": url_for("tables_dashboard")})
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
     # Toma el puerto de Cloud Run ($PORT) o usa 8080 en ejecuciones locales
