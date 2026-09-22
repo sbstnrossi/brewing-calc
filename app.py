@@ -153,7 +153,7 @@ def tables_dashboard():
 @app.route("/tables/recipe/new", methods=["GET"])
 def new_recipe_form():
     """Carga los perfiles de agua existentes para el selector y muestra el formulario."""
-    water_profiles_ref = db.collection("water_profiles").stream()
+    water_profiles_ref = db.collection("profiles").stream()
     water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
     
     return render_template("recipe_form.html", water_profiles=water_profiles)

@@ -73,7 +73,7 @@
             <tbody>
                 {% for water in water_profiles %}
                 <tr>
-                    <td><strong>{{ water.name }}</strong></td>
+                    <td><strong>{{ water.name or water.id }}</strong></td>
                     <td>{{ water.ca }}</td>
                     <td>{{ water.mg }}</td>
                     <td>{{ water.na }}</td>
