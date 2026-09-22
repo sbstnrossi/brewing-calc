@@ -137,12 +137,26 @@
     </div>
 
     <script>
-        // Agregar fila de Grano
-        function addFermentableRow(name = '', amount = '', ebc = '') {
+        // Inyectar el catálogo de maltas desde Jinja2 a JS
+        const AVAILABLE_MALTS = {{ malts | tojson }};
+    
+        function addFermentableRow(selectedMaltId = '', amount = '', ebc = '') {
             const tbody = document.getElementById('fermentablesTable');
             const row = document.createElement('tr');
+            
+            // Generar las opciones del selector de maltas
+            let optionsHtml = '<option value="">-- Seleccionar Malta --</option>';
+            AVAILABLE_MALTS.forEach(m => {
+                const isSelected = m.id === selectedMaltId ? 'selected' : '';
+                optionsHtml += `<option value="${m.id}" ${isSelected}>${m.name || m.id}</option>`;
+            });
+    
             row.innerHTML = `
-                <td><input type="text" class="f-name" value="${name}" placeholder="Ej: Malta Pale Ale" required></td>
+                <td>
+                    <select class="f-malt-id" required>
+                        ${optionsHtml}
+                    </select>
+                </td>
                 <td><input type="number" step="0.01" class="f-amount" value="${amount}" placeholder="Ej: 4.5" required></td>
                 <td><input type="number" step="0.1" class="f-ebc" value="${ebc}" placeholder="Ej: 6"></td>
                 <td><button type="button" class="btn btn-remove" onclick="this.closest('tr').remove()">X</button></td>
