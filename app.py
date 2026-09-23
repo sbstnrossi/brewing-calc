@@ -4,6 +4,7 @@ from google.cloud import firestore
 from recipeman import RecipeManager
 from batchman import BatchManager
 import sync_utils
+import re
 
 app = Flask(__name__)
 
@@ -167,6 +168,13 @@ def new_recipe_form():
     )
 
 
+def slugify(text: str) -> str:
+    """Convierte un texto en un ID limpio para Firestore (ej: 'American IPA #1' -> 'american_ipa_1')."""
+    text = text.lower().strip()
+    text = re.sub(r'[^\w\s-]', '', text)
+    return re.sub(r'[\s_-]+', '_', text)
+
+
 @app.route("/tables/recipe/add", methods=["POST"])
 def add_recipe():
     """Recibe la receta completa en formato JSON y la guarda en Firestore."""
@@ -175,8 +183,12 @@ def add_recipe():
         if not data:
             return jsonify({"status": "error", "message": "No se recibieron datos en JSON"}), 400
 
+        # Si viene un ID explícito (al editar) se usa ese; si no, se genera un slug del nombre
+        recipe_id = data.get("id") or slugify(data.get("name", "receta_sin_nombre"))
+
         # Documento estructurado para Firestore
         recipe_doc = {
+            "id": recipe_id,
             "name": data.get("name"),
             "style": data.get("style"),
             "batch_size_l": float(data.get("batch_size_l", 20.0)),
@@ -195,9 +207,7 @@ def add_recipe():
         }
 
         # Guardar en la colección 'recipes' de Firestore
-        doc_ref = db.collection("recipes").document()
-        recipe_doc["id"] = doc_ref.id
-        doc_ref.set(recipe_doc)
+        db.collection("recipes").document(recipe_id).set(recipe_doc, merge=True)
 
         return jsonify({"status": "ok", "redirect_url": url_for("tables_dashboard")})
 
