@@ -128,7 +128,7 @@
             <!-- NOTAS -->
             <h3 class="section-title">4. Notas</h3>
             <div class="form-group">
-                <textarea id="notes" rows="3" placeholder="Instrucciones especiales de macerado, fermentación o perfil aromático..."></textarea>
+                <textarea id="notes" rows="3"  value="{{ recipe.notes if recipe else ''}}" placeholder="Instrucciones especiales de macerado, fermentación o perfil aromático..."></textarea>
             </div>
 
             <!-- BOTONES -->
@@ -205,7 +205,7 @@
                 // Pre-cargar filas de lúpulos de la receta
                 if (EXISTING_RECIPE.hop_bill && EXISTING_RECIPE.hop_bill.length > 0) {
                     EXISTING_RECIPE.hop_bill.forEach(h => {
-                        addHopRow(h.name, h.weight_g, h.time_min, h.alpha_acid, h.use);
+                        addHopRow(h.name, h.weight_g, h.time_min, h.alpha_acid_pct, h.use);
                     });
                 } else {
                     addHopRow();
@@ -241,7 +241,7 @@
                 const aa = parseFloat(row.querySelector('.h-aa').value) || 0;
                 const use = row.querySelector('.h-use').value;
                 if (name && weight > 0) {
-                    hops.push({ name, weight_g: weight, time_min: time, alpha_acid: aa, use });
+                    hops.push({ name, weight_g: weight, time_min: time, alpha_acid_pct: aa, use });
                 }
             });
 
