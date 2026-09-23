@@ -194,8 +194,8 @@
         window.onload = function() {
             if (EXISTING_RECIPE) {
                 // Pre-cargar filas de fermentables de la receta
-                if (EXISTING_RECIPE.fermentables && EXISTING_RECIPE.fermentables.length > 0) {
-                    EXISTING_RECIPE.fermentables.forEach(f => {
+                if (EXISTING_RECIPE.grain_bill && EXISTING_RECIPE.grain_bill.length > 0) {
+                    EXISTING_RECIPE.grain_bill.forEach(f => {
                         addFermentableRow(f.malt_id || f.id, f.amount_kg, f.color_ebc);
                     });
                 } else {
@@ -203,8 +203,8 @@
                 }
     
                 // Pre-cargar filas de lúpulos de la receta
-                if (EXISTING_RECIPE.hops && EXISTING_RECIPE.hops.length > 0) {
-                    EXISTING_RECIPE.hops.forEach(h => {
+                if (EXISTING_RECIPE.hop_bill && EXISTING_RECIPE.hop_bill.length > 0) {
+                    EXISTING_RECIPE.hop_bill.forEach(h => {
                         addHopRow(h.name, h.amount_g, h.time_min, h.alpha_acid, h.use);
                     });
                 } else {

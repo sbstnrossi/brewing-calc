@@ -224,8 +224,8 @@ def add_recipe():
             "ebc": float(data.get("ebc", 0)),
             "mash_temp": float(data.get("mash_temp", 65.0)),
             "boil_time_min": int(data.get("boil_time_min", 60)),
-            "fermentables": data.get("fermentables", []),  # Lista de dicts
-            "hops": data.get("hops", []),                 # Lista de dicts
+            "grain_bill": data.get("grain_bill", []),  # Lista de dicts
+            "hop_bill": data.get("hop_bill", []),                 # Lista de dicts
             "notes": data.get("notes", "")
         }
 
