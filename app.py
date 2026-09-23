@@ -180,7 +180,7 @@ def edit_recipe_form(recipe_id):
     malts_dict = recipe_mgr.get_all_malts()
     malts_list = [{"id": k} | v for k, v in malts_dict.items()]
 
-    water_profiles_ref = db.collection("water_profiles").stream()
+    water_profiles_ref = db.collection("profiles").stream()
     water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
 
     return render_template(
