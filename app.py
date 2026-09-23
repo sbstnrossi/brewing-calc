@@ -158,7 +158,10 @@ def new_recipe_form():
     malts_list = [{"id": k} | v for k, v in malts_dict.items()]
     """Carga los perfiles de agua existentes para el selector y muestra el formulario."""
     water_profiles_ref = db.collection("profiles").stream()
-    water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
+    water_profiles = [
+        doc.to_dict() | {"id": doc.id, "name": doc.to_dict().get("name", doc.id.replace("_", " ").title())} 
+        for doc in water_profiles_ref
+    ]
     
     return render_template(
         "recipe_form.html", 
@@ -181,7 +184,10 @@ def edit_recipe_form(recipe_id):
     malts_list = [{"id": k} | v for k, v in malts_dict.items()]
 
     water_profiles_ref = db.collection("profiles").stream()
-    water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
+    water_profiles = [
+        doc.to_dict() | {"id": doc.id, "name": doc.to_dict().get("name", doc.id.replace("_", " ").title())} 
+        for doc in water_profiles_ref
+    ]
 
     return render_template(
         "recipe_form.html",
