@@ -221,68 +221,88 @@
 
         // Procesar formulario y enviar JSON a Flask
         document.getElementById('recipeForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            // Recopilar Fermentables
+        e.preventDefault();
+    
+        try {
+            // 1. Recopilar Fermentables de forma segura
             const fermentables = [];
             document.querySelectorAll('#fermentablesTable tr').forEach(row => {
-                const name = row.querySelector('.f-name').value;
-                const weight = parseFloat(row.querySelector('.f-weight').value) || 0;
-                const ebc = parseFloat(row.querySelector('.f-ebc').value) || 0;
-                if (name && weight > 0) {
-                    fermentables.push({ name, weight_kg: weight, color_ebc: ebc });
+                const maltSelect = row.querySelector('.f-malt-id');
+                const weightInput = row.querySelector('.f-weight');
+                const ebcInput = row.querySelector('.f-ebc');
+    
+                // Solo agregamos si el elemento existe y tiene un valor seleccionado
+                if (maltSelect && maltSelect.value) {
+                    fermentables.push({
+                        malt_id: maltSelect.value,
+                        weight_kg: parseFloat(weightInput?.value) || 0,
+                        color_ebc: parseFloat(ebcInput?.value) || 0
+                    });
                 }
             });
-
-            // Recopilar Lúpulos
+    
+            // 2. Recopilar Lúpulos de forma segura
             const hops = [];
             document.querySelectorAll('#hopsTable tr').forEach(row => {
-                const name = row.querySelector('.h-name').value;
-                const weight = parseFloat(row.querySelector('.h-weight').value) || 0;
-                const time = parseInt(row.querySelector('.h-time').value) || 0;
-                const aa = parseFloat(row.querySelector('.h-aa').value) || 0;
-                const use = row.querySelector('.h-use').value;
-                if (name && weight > 0) {
-                    hops.push({ name, weight_g: weight, time_min: time, alpha_acid_pct: aa, use });
+                const nameInput = row.querySelector('.h-name');
+                const weightInput = row.querySelector('.h-weight');
+                const timeInput = row.querySelector('.h-time');
+                const aaInput = row.querySelector('.h-aa');
+                const useSelect = row.querySelector('.h-use');
+    
+                if (nameInput && nameInput.value) {
+                    hops.push({
+                        name: nameInput.value,
+                        weight_g: parseFloat(weightInput?.value) || 0,
+                        time_min: parseInt(timeInput?.value) || 0,
+                        alpha_acid: parseFloat(aaInput?.value) || 0,
+                        use: useSelect?.value || 'Hervor'
+                    });
                 }
             });
-
-            // Payload completo
+    
+            // 3. Obtener valores del formulario principal evitando errores de 'null'
+            const recipeIdInput = document.getElementById('recipe_id');
+            const waterProfileSelect = document.getElementById('target_water_profile_id');
+    
             const payload = {
-                name: document.getElementById('name').value,
-                style: document.getElementById('style').value,
-                batch_size_l: parseFloat(document.getElementById('batch_size_l').value) || 20,
-                target_og: parseFloat(document.getElementById('target_og').value) || 1.050,
-                target_fg: parseFloat(document.getElementById('target_fg').value) || 1.010,
-                target_ph: parseFloat(document.getElementById('target_ph').value) || 5.3,
-                target_water_profile_id: document.getElementById('target_water_profile_id').value,
-                yeast: document.getElementById('yeast').value,
-                mash_temp: parseFloat(document.getElementById('mash_temp').value) || 65,
-                notes: document.getElementById('notes').value,
-                fermentables: fermentables,
-                hops: hops
+                id: recipeIdInput ? recipeIdInput.value : '',
+                name: document.getElementById('name')?.value || '',
+                style: document.getElementById('style')?.value || '',
+                batch_size_l: parseFloat(document.getElementById('batch_size_l')?.value) || 20,
+                target_og: parseFloat(document.getElementById('target_og')?.value) || 1.050,
+                target_fg: parseFloat(document.getElementById('target_fg')?.value) || 1.010,
+                target_ph: parseFloat(document.getElementById('target_ph')?.value) || 5.3,
+                target_water_profile_id: waterProfileSelect ? waterProfileSelect.value : '',
+                yeast: document.getElementById('yeast')?.value || '',
+                mash_temp: parseFloat(document.getElementById('mash_temp')?.value) || 65,
+                notes: document.getElementById('notes')?.value || '',
+                grain-bill: fermentables,
+                hop-bill: hops
             };
-
-            // Envío por API Fetch
-            try {
-                const response = await fetch('/tables/recipe/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const resData = await response.json();
-
-                if (response.ok && resData.status === 'ok') {
-                    window.location.href = resData.redirect_url;
-                } else {
-                    alert('Error al guardar la receta: ' + (resData.message || 'Error desconocido'));
-                }
-            } catch (err) {
-                alert('Error de red al conectar con el servidor.');
-                console.error(err);
+    
+            console.log("🚀 Payload procesado correctamente:", payload);
+    
+            // 4. Envío de la petición a Flask
+            const response = await fetch('/tables/recipe/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+    
+            const resData = await response.json();
+    
+            if (response.ok && resData.status === 'ok') {
+                window.location.href = resData.redirect_url;
+            } else {
+                alert('Error al guardar la receta: ' + (resData.message || 'Error desconocido'));
             }
-        });
+    
+        } catch (err) {
+            console.error("❌ Error en el cliente al procesar el formulario:", err);
+            alert("Ocurrió un problema en la recolección de datos. Revisa la consola F12.");
+        }
+    });
     </script>
 </body>
 </html>
