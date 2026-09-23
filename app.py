@@ -168,6 +168,29 @@ def new_recipe_form():
     )
 
 
+@app.route("/tables/recipe/edit/<recipe_id>", methods=["GET"])
+def edit_recipe_form(recipe_id):
+    """Carga una receta existente y renderiza el mismo formulario pre-poblado."""
+    recipe_doc = db.collection("recipes").document(recipe_id).get()
+    if not recipe_doc.exists:
+        return "Receta no encontrada", 404
+
+    recipe = recipe_doc.to_dict() | {"id": recipe_id}
+    
+    malts_dict = recipe_mgr.get_all_malts()
+    malts_list = [{"id": k} | v for k, v in malts_dict.items()]
+
+    water_profiles_ref = db.collection("water_profiles").stream()
+    water_profiles = [doc.to_dict() | {"id": doc.id} for doc in water_profiles_ref]
+
+    return render_template(
+        "recipe_form.html",
+        water_profiles=water_profiles,
+        malts=malts_list,
+        recipe=recipe  # Pasamos la receta existente
+    )
+
+
 def slugify(text: str) -> str:
     """Convierte un texto en un ID limpio para Firestore (ej: 'American IPA #1' -> 'american_ipa_1')."""
     text = text.lower().strip()

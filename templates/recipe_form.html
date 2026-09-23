@@ -31,7 +31,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🍺 Cargar Nueva Receta</h1>
+        <h1>{% if recipe %}✏️ Editar Receta: {{ recipe.name }}{% else %}🍺 Cargar Nueva Receta{% endif %}</h1>
+
+        <!-- Guardar ID existente para que el backend sepa que es una actualización -->
+        <input type="hidden" id="recipe_id" value="{{ recipe.id if recipe else '' }}">
         <form id="recipeForm">
             
             <!-- INFORMACIÓN GENERAL -->
@@ -39,30 +42,30 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label>Nombre de la Receta *</label>
-                    <input type="text" id="name" required placeholder="Ej: Neipa Tropical">
+                    <input type="text" id="name" value="{{ recipe.name if recipe else '' }}" required placeholder="Ej: Neipa Tropical">
                 </div>
                 <div class="form-group">
                     <label>Estilo BJCP</label>
-                    <input type="text" id="style" placeholder="Ej: 21B. Specialty IPA">
+                    <input type="text" id="style" value="{{ recipe.style if recipe else '' }}" placeholder="Ej: 21B. Specialty IPA">
                 </div>
             </div>
 
             <div class="grid-4">
                 <div class="form-group">
                     <label>Volumen (L)</label>
-                    <input type="number" step="0.5" id="batch_size_l" value="20">
+                    <input type="number" step="0.5" id="batch_size_l" value=value="{{ recipe.batch_size_l if recipe else 20.0 }}">
                 </div>
                 <div class="form-group">
                     <label>OG Objetivo</label>
-                    <input type="number" step="0.001" id="target_og" value="1.052" required>
+                    <input type="number" step="0.001" id="target_og" value="{{ recipe.target_og if recipe else 1.052 }}" required>
                 </div>
                 <div class="form-group">
                     <label>FG Objetivo</label>
-                    <input type="number" step="0.001" id="target_fg" value="1.010" required>
+                    <input type="number" step="0.001" id="target_fg" value="{{ recipe.target_fg if recipe else 1.010 }}" required>
                 </div>
                 <div class="form-group">
                     <label>pH Objetivo</label>
-                    <input type="number" step="0.1" id="target_ph" value="5.3">
+                    <input type="number" step="0.1" id="target_ph" value="{{ recipe.target_ph if recipe else 5.3 }}">
                 </div>
             </div>
 
@@ -78,11 +81,11 @@
                 </div>
                 <div class="form-group">
                     <label>Levadura</label>
-                    <input type="text" id="yeast" placeholder="Ej: Lallemand Verdant IPA / US-05">
+                    <input type="text" id="yeast" value="{{ recipe.yeast if recipe else 'US-0' }}" placeholder="Ej: Lallemand Verdant IPA / US-05">
                 </div>
                 <div class="form-group">
                     <label>Temp Macerado (°C)</label>
-                    <input type="number" step="0.5" id="mash_temp" value="65.5">
+                    <input type="number" step="0.5" id="mash_temp" value="{{ recipe.mash_temp if recipe else 65.5 }}">
                 </div>
             </div>
 
@@ -186,10 +189,32 @@
             tbody.appendChild(row);
         }
 
-        // Cargar 1 fila por defecto en cada tabla al abrir
+        const EXISTING_RECIPE = {{ recipe | tojson if recipe else 'null' }};
+
         window.onload = function() {
-            addFermentableRow();
-            addHopRow();
+            if (EXISTING_RECIPE) {
+                // Pre-cargar filas de fermentables de la receta
+                if (EXISTING_RECIPE.fermentables && EXISTING_RECIPE.fermentables.length > 0) {
+                    EXISTING_RECIPE.fermentables.forEach(f => {
+                        addFermentableRow(f.malt_id || f.id, f.amount_kg, f.color_ebc);
+                    });
+                } else {
+                    addFermentableRow();
+                }
+    
+                // Pre-cargar filas de lúpulos de la receta
+                if (EXISTING_RECIPE.hops && EXISTING_RECIPE.hops.length > 0) {
+                    EXISTING_RECIPE.hops.forEach(h => {
+                        addHopRow(h.name, h.amount_g, h.time_min, h.alpha_acid, h.use);
+                    });
+                } else {
+                    addHopRow();
+                }
+            } else {
+                // Si es nueva receta, agregar 1 fila vacía en cada tabla
+                addFermentableRow();
+                addHopRow();
+            }
         };
 
         // Procesar formulario y enviar JSON a Flask
