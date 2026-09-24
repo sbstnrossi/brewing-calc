@@ -242,6 +242,56 @@ def add_recipe():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+    
+@app.route("/tables/water/new", methods=["GET"])
+def new_water_profile_form():
+    """Formulario para crear un nuevo perfil de agua."""
+    return render_template("water_profile_form.html", profile=None)
+
+
+@app.route("/tables/water/edit/<profile_id>", methods=["GET"])
+def edit_water_profile_form(profile_id):
+    """Formulario pre-poblado para editar un perfil de agua existente."""
+    doc_ref = db.collection("profiles").document(profile_id).get()
+    if not doc_ref.exists:
+        return "Perfil de agua no encontrado", 404
+
+    profile = doc_ref.to_dict() | {"id": profile_id}
+    profile["name"] = profile.get("name", profile_id.replace("_", " ").title())
+    return render_template("water_profile_form.html", profile=profile)
+
+
+@app.route("/tables/water/add", methods=["POST"])
+def add_water_profile():
+    """Guarda o actualiza un perfil de agua en Firestore."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No se recibieron datos JSON"}), 400
+
+        # Si viene ID se mantiene (Edición); si no, se genera desde el nombre (Alta)
+        profile_id = data.get("id") or slugify(data.get("name", "perfil_agua"))
+
+        profile_doc = {
+            "id": profile_id,
+            "name": data.get("name"),
+            "ca": float(data.get("ca", 0.0)),      # Calcio
+            "mg": float(data.get("mg", 0.0)),      # Magnesio
+            "na": float(data.get("na", 0.0)),      # Sodio
+            "so4": float(data.get("so4", 0.0)),    # Sulfato
+            "cl": float(data.get("cl", 0.0)),      # Cloruro
+            "hco3": float(data.get("hco3", 0.0)),  # Bicarbonato
+            "ph_base": float(data.get("ph_base", 7.0)),
+            "notes": data.get("notes", "")
+        }
+
+        db.collection("profiles").document(profile_id).set(profile_doc, merge=True)
+        return jsonify({"status": "ok", "redirect_url": url_for("tables_dashboard")})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
 
 if __name__ == "__main__":
     # Toma el puerto de Cloud Run ($PORT) o usa 8080 en ejecuciones locales
