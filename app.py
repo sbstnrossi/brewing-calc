@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template_string, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template_string, render_template, redirect, url_for, Response
 from google.cloud import firestore
 from recipeman import RecipeManager
 from batchman import BatchManager
@@ -7,6 +7,7 @@ import sync_utils
 import re
 from datetime import datetime
 import core
+import json
 
 app = Flask(__name__)
 
@@ -245,6 +246,27 @@ def add_recipe():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     
+    
+@app.route("/tables/recipe/export/<recipe_id>", methods=["GET"])
+def export_recipe_json(recipe_id):
+    """Obtiene el documento de Firestore y lo entrega como un archivo JSON descargable."""
+    doc_ref = db.collection("recipes").document(recipe_id).get()
+    
+    if not doc_ref.exists:
+        return "La receta no existe en Firestore", 404
+
+    recipe_data = doc_ref.to_dict()
+    recipe_data["id"] = recipe_id
+
+    # Convertimos el diccionario a una cadena JSON formateada con sangría
+    json_output = json.dumps(recipe_data, indent=2, ensure_ascii=False)
+
+    return Response(
+        json_output,
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment;filename={recipe_id}.json"}
+    )
+
     
 @app.route("/tables/water/new", methods=["GET"])
 def new_water_profile_form():
