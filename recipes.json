@@ -130,6 +130,109 @@
         { "hop_id": "willamette", "name": "Willamette", "weight_g": 7.5, "alpha_acid_pct": 5.5, "use": "boil", "time_min": 15 }
       ],
       "yeast": "Safale S-04"
+    },
+    {
+      "style": "2B Bohemian Pilsner",
+      "id": "bohemian_pilsner",
+      "ebc": 0.0,
+      "mash_temp": 67.0,
+      "yeast": "Saflager S-23",
+      "ibu": 0.0,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "Yellow Balanced",
+        "acid_selected": "Phosphoric 1M"
+      },
+      "notes": "Increase the pre-boil volume as needed to allow a 90-minute boil.",
+      "target_mash_ph": 5.3,
+      "hop_bill": [
+        {
+          "alpha_acid": 3.5,
+          "use": "Hervor",
+          "name": "Saaz",
+          "weight_g": 47,
+          "time_min": 60
+        },
+        {
+          "alpha_acid": 3.5,
+          "use": "Hervor",
+          "name": "Saaz",
+          "weight_g": 57,
+          "time_min": 30
+        },
+        {
+          "alpha_acid": 3.5,
+          "use": "Hervor",
+          "name": "Saaz",
+          "weight_g": 28,
+          "time_min": 10
+        },
+        {
+          "alpha_acid": 3.5,
+          "use": "Whirlpool",
+          "name": "Saaz",
+          "weight_g": 28,
+          "time_min": 0
+        }
+      ],
+      "name": "Bohemian Pilsner",
+      "target_og": 1.056,
+      "boil_time_min": 60,
+      "grain_bill": [
+        {
+          "weight_kg": 5.44,
+          "malt_id": "pilsner",
+          "color_ebc": 4.6
+        },
+        {
+          "weight_kg": 0.34,
+          "malt_id": "carapils",
+          "color_ebc": 2
+        }
+      ],
+      "batch_size_l": 19.0,
+      "target_fg": 1.016
+    },
+    {
+      "style": "5A Maibock / helles Bock",
+      "id": "helles_bock",
+      "ebc": 0.0,
+      "yeast": "Saflager S-23",
+      "mash_temp": 69.0,
+      "ibu": 0.0,
+      "water_settings": {
+        "source_profile_id": "ro_water",
+        "target_profile_id": "Amber Balancedd",
+        "acid_selected": "Phosphoric 1M"
+      },
+      "name": "Helles Bock",
+      "target_mash_ph": 5.3,
+      "hop_bill": [
+        {
+          "alpha_acid": 0,
+          "use": "Hervor",
+          "name": "magnum",
+          "weight_g": 16,
+          "time_min": 60
+        }
+      ],
+      "notes": "Increase the pre-boil volume as needed to allow a 90-minute boil, which helps reduce DMS in the beer.Use 27 grams of properly rehydrated dry yeast, 5 liquid yeast packages, or make an appropriate starter. Ferment at 50° F (10° C). Allow the beer to lager for at least 4 weeks before bottling or serving. When finished, carbonate the beer to approximately 2.5 volumes.",
+      "target_og": 1.07,
+      "boil_time_min": 60,
+      "grain_bill": [
+        {
+          "weight_kg": 4.76,
+          "malt_id": "pilsner",
+          "color_ebc": 4.6
+        },
+        {
+          "weight_kg": 2.49,
+          "malt_id": "munich_light",
+          "color_ebc": 18
+        }
+      ],
+      "batch_size_l": 19.0,
+      "target_fg": 1.017
     }
   ]
 }

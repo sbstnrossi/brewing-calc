@@ -12,10 +12,10 @@ import recipeman as rm
 import htmlreport as report
 import batchman as bm
 
-RECIPE_ID = "apa_01"
+RECIPE_ID = "bohemian_pilsner"
 
-mash_vol         = 16.0
-final_vol        = 20.0
+mash_vol         = 15.0
+final_vol        = 19.0
 preboil_max      = 19.0
 target_mash_ph   = None
 target_sparge_ph = 5.5
@@ -25,6 +25,10 @@ ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0
 # Instanciar el gestor de datos
 db = bdm.BruDataManager()
 recipes = rm.RecipeManager()
+
+# 🔍 Diagnóstico: ver qué recetas existen realmente
+all_recipes = recipes.recipes_ref.stream() if recipes.use_firestore else recipes._read_json(recipes.recipes_file)
+print("📋 Recetas disponibles:", [doc.id for doc in all_recipes] if recipes.use_firestore else list(all_recipes.keys()))
 
 details = recipes.get_recipe_details(RECIPE_ID, target_volume_l=final_vol)
 
