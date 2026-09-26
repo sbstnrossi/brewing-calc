@@ -93,8 +93,8 @@ def calculate_water_volumes(
 SALTS_DATABASE: Dict[str, Dict[str, Any]] = {
     "CaSO4":  {"name": "Sulfato de Calcio (Yeso)",            "ca": 232.8,  "so4":  557.9},
     "CaCl2":  {"name": "Cloruro de Calcio (Dihidratado)",     "ca": 272.6,   "cl":  482.3},
-    "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
-  # "MgCl2":  {"name": "Cloruro de Magnesio (Hexahidratado)", "mg": 119.6,   "cl":  348.8},
+  # "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
+    "MgCl2":  {"name": "Cloruro de Magnesio (Hexahidratado)", "mg": 119.6,   "cl":  348.8},
     "NaCl":   {"name": "Cloruro de Sodio (Sal de mesa)",      "na": 393.4,   "cl":  606.6},
   # "NaHCO3": {"name": "Bicarbonato de Sodio",                "na": 273.7, "hco3":  726.3},
   # "CaCO3":  {"name": "Carbonato de Calcio (Tiza)",          "ca": 400.4, "hco3": 1219.3},
@@ -189,7 +189,8 @@ def solve_salt_additions(
 def estimate_unadjusted_mash_ph(
     mash_volume_l: float,
     water_profile: Dict[str, float],
-    grain_bill: List[Dict[str, Any]]
+    grain_bill: List[Dict[str, Any]],
+    salt_additions_g: Optional[Dict[str, float]] = None# Ej: {"CaSO4": 4.5, "CaCl2": 2.0}
 ) -> Dict[str, Any]:
     """
     Estima el pH natural del macerado (sin agregar ácido ni sales correctoras).
@@ -215,8 +216,20 @@ def estimate_unadjusted_mash_ph(
     # -------------------------------------------------------------------------
     # 2. Reacción ácida de Calcio y Magnesio (Regla de Kolbach)
     # -------------------------------------------------------------------------
-    ca_meq_l = water_profile.get("ca", 0.0) / 20.05
-    mg_meq_l = water_profile.get("mg", 0.0) / 12.15
+    
+    ca_ppm = water_profile.get("ca", 0.0)
+    mg_ppm = water_profile.get("mg", 0.0)
+    
+    # Sumar el mineral disuelto por gramo de sal en el volumen de macerado (ppm = mg/L)
+    if salt_additions_g and SALTS_DATABASE and mash_volume_l > 0:
+        for salt_code, grams in salt_additions_g.items():
+            if grams > 0 and salt_code in SALTS_DATABASE:
+                salt_info = SALTS_DATABASE[salt_code]
+                ca_ppm += (grams * salt_info.get("ca", 0.0)) / mash_volume_l
+                mg_ppm += (grams * salt_info.get("mg", 0.0)) / mash_volume_l
+
+    ca_meq_l = ca_ppm / 20.05
+    mg_meq_l = mg_ppm / 12.15
     
     meq_h_released_by_minerals = mash_volume_l * ((ca_meq_l / 3.5) + (mg_meq_l / 7.0))
 
@@ -257,8 +270,9 @@ def calculate_mash_acid_addition(
     target_ph: float,
     water_profile: Dict[str, float],  # {"hco3": ppm, "ca": ppm, "mg": ppm}
     grain_bill: List[Dict[str, Any]], # [{"weight_kg": 4.0, "di_ph": 5.70, "buffering": 35.0}, ...]
-    acid_info: Dict[str, Any]         # Entrada de acidtable.json (ej. Lactic 88% o Phosphoric 85%)
-) -> Dict[str, float]:
+    acid_info: Dict[str, Any],        # Entrada de acidtable.json (ej. Lactic 88% o Phosphoric 85%)
+    salt_additions_g: Optional[Dict[str, float]] = None# Ej: {"CaSO4": 4.5, "CaCl2": 2.0}
+) -> Dict[str, Any]:
     """
     Calcula los mL de ácido necesarios para alcanzar el pH de maceración objetivo.
     
@@ -278,11 +292,23 @@ def calculate_mash_acid_addition(
 
     # -------------------------------------------------------------------------
     # 2. Reacción de Calcio y Magnesio en el macerado (Regla de Kolbach)
-    #    3.5 mEq de Ca2+ o 7.0 mEq de Mg2+ liberan 1 mEq de H+
+    #    Aporte base del agua + Aporte adicional por sales disueltas
     # -------------------------------------------------------------------------
-    ca_meq_l = water_profile.get("ca", 0.0) / 20.05
-    mg_meq_l = water_profile.get("mg", 0.0) / 12.15
+    ca_ppm = water_profile.get("ca", 0.0)
+    mg_ppm = water_profile.get("mg", 0.0)
+
+    # Sumar el mineral disuelto por gramo de sal en el volumen de macerado (ppm = mg/L)
+    if salt_additions_g and SALTS_DATABASE and mash_volume_l > 0:
+        for salt_code, grams in salt_additions_g.items():
+            if grams > 0 and salt_code in SALTS_DATABASE:
+                salt_info = SALTS_DATABASE[salt_code]
+                ca_ppm += (grams * salt_info.get("ca", 0.0)) / mash_volume_l
+                mg_ppm += (grams * salt_info.get("mg", 0.0)) / mash_volume_l
+
+    ca_meq_l = ca_ppm / 20.05
+    mg_meq_l = mg_ppm / 12.15
     
+    # 3.5 mEq de Ca2+ o 7.0 mEq de Mg2+ liberan 1 mEq de H+
     meq_h_released_by_minerals = mash_volume_l * ((ca_meq_l / 3.5) + (mg_meq_l / 7.0))
 
     # -------------------------------------------------------------------------
@@ -304,12 +330,16 @@ def calculate_mash_acid_addition(
     # -------------------------------------------------------------------------
     net_meq_required = meq_alkalinity_needed + meq_grain_total - meq_h_released_by_minerals
 
+    total_buffering_capacity = sum(g["weight_kg"] * g.get("buffering", 35.0) for g in grain_bill)
+
     if net_meq_required <= 0:
+        # El agua/sales y la malta ya dejan el pH en o por debajo del objetivo
+        unadjusted_ph = target_ph + (abs(net_meq_required) / total_buffering_capacity if total_buffering_capacity > 0 else 0)
         return {
             "acid_volume_ml": 0.0,
             "net_meq_required": 0.0,
-            "unadjusted_est_ph": round(target_ph + (abs(net_meq_required) / sum(g["weight_kg"] * g.get("buffering", 35.0) for g in grain_bill)), 2),
-            "status": "No se requiere ácido. El pH ya se encuentra en o por debajo del objetivo."
+            "unadjusted_est_ph": round(unadjusted_ph, 2),
+            "status": "No se requiere ácido. El pH proyectado ya se encuentra en o por debajo del objetivo."
         }
 
     # -------------------------------------------------------------------------
@@ -326,7 +356,7 @@ def calculate_mash_acid_addition(
         # Ácido Láctico (monoprático, pKa=3.86): casi 100% disociado a pH > 5.0
         protons_per_molecule = 1.0 / (1.0 + (10 ** (pka_acid - target_ph)))
     else:
-        protons_per_molecule = -10.0
+        protons_per_molecule = 1.0  # Fallback monoprótico general
 
     meq_per_ml = molarity * protons_per_molecule  # mEq por mL de ácido líquido
     acid_volume_ml = net_meq_required / meq_per_ml

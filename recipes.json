@@ -202,7 +202,7 @@
       "ibu": 0.0,
       "water_settings": {
         "source_profile_id": "ro_water",
-        "target_profile_id": "Amber Balancedd",
+        "target_profile_id": "Amber Balanced",
         "acid_selected": "Phosphoric 1M"
       },
       "name": "Helles Bock",

@@ -17,7 +17,7 @@ RECIPE_ID = "bohemian_pilsner"
 mash_vol         = 15.0
 final_vol        = 19.0
 preboil_max      = 19.0
-target_mash_ph   = None
+target_mash_ph   = 5.35
 target_sparge_ph = 5.5
 # Agua inicial (ej. Agua Ósmosis Inversa / Muy Blanda)
 ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0}
@@ -85,8 +85,9 @@ print(f"Relación SO4/Cl: {receta_sales['so4_cl_ratio']}")
 
 estimate_mash_ph = core.estimate_unadjusted_mash_ph(
     mash_volume_l=mash_vol,
-    water_profile=adj_water,
-    grain_bill=grains
+    water_profile=ro_water,
+    grain_bill=grains,
+    salt_additions_g=receta_sales['salts_grams']
 )
 
 print("--- ESTIMACIÓN DE pH DE MACERACIÓN (SIN ÁCIDO) ---")
@@ -98,9 +99,10 @@ print(f"-> pH NATURAL ESTIMADO:   {estimate_mash_ph['estimated_unadjusted_ph']}\
 resultado_fosforico = core.calculate_mash_acid_addition(
     mash_volume_l= mash_vol,
     target_ph=target_mash_ph,
-    water_profile=adj_water,
+    water_profile=ro_water,
     grain_bill=grains,
-    acid_info=acid_data
+    acid_info=acid_data,
+    salt_additions_g=receta_sales['salts_grams']
 )
 
 print("--- RESULTADO ÁCIDO FOSFÓRICO 1M ---")
