@@ -5,6 +5,8 @@ from recipeman import RecipeManager
 from batchman import BatchManager
 import sync_utils
 import re
+from datetime import datetime
+import core
 
 app = Flask(__name__)
 
@@ -292,6 +294,111 @@ def add_water_profile():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     
+    
+###############################################################################
+# SECCION PARA COCCION
+###############################################################################
+
+@app.route("/brew", methods=["GET"])
+def brew_setup():
+    """Pantalla inicial: selección de receta, perfil base (usado) y perfil objetivo."""
+    recipes_ref = db.collection("recipes").stream()
+    recipes = [doc.to_dict() | {"id": doc.id} for doc in recipes_ref]
+
+    # Colección 'profiles' en Firestore
+    profiles_ref = db.collection("profiles").stream()
+    profiles = [
+        doc.to_dict() | {"id": doc.id, "name": doc.to_dict().get("name", doc.id.replace("_", " ").title())}
+        for doc in profiles_ref
+    ]
+
+    # Pasamos las sales de core.py para renderizar los checkboxes dinámicamente
+    available_salts_db = core.SALTS_DATABASE
+
+    return render_template(
+        "brew_setup.html", 
+        recipes=recipes, 
+        profiles=profiles, 
+        salts_db=available_salts_db
+    )
+
+
+@app.route("/brew/start", methods=["POST"])
+def start_brew():
+    """Crea un nuevo lote (batch) y calcula el perfil de sales."""
+    data = request.get_json()
+    batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    water_used_id = data.get("water_used_id", "")
+    target_water_profile_id = data.get("target_water_profile_id", "")
+    mash_water_l = float(data.get("mash_water_l", 15.0))
+    selected_salts = data.get("salts_available", [])
+
+    # 1. Obtener perfiles de agua desde Firestore ('profiles')
+    source_profile_doc = db.collection("profiles").document(water_used_id).get() if water_used_id else None
+    target_profile_doc = db.collection("profiles").document(target_water_profile_id).get() if target_water_profile_id else None
+
+    source_data = source_profile_doc.to_dict() if (source_profile_doc and source_profile_doc.exists) else {}
+    target_data = target_profile_doc.to_dict() if (target_profile_doc and target_profile_doc.exists) else {}
+
+    # 2. Formatear perfiles para core.py (solo iones: ca, mg, na, so4, cl, hco3)
+    IONS = ["ca", "mg", "na", "so4", "cl", "hco3"]
+    source_ions = {ion: float(source_data.get(ion, 0.0)) for ion in IONS}
+    target_ions = {ion: float(target_data.get(ion, 0.0)) for ion in IONS}
+
+    # 3. Calcular adición de sales si existen ambos perfiles
+    salt_results = {}
+    if water_used_id and target_water_profile_id:
+        try:
+            # Si el usuario seleccionó sales específicas, podemos pasar un diccionario filtrado de pesos/disponibilidad
+            salt_results = core.solve_salt_additions(
+                source_profile=source_ions,
+                target_profile=target_ions,
+                volume_liters=mash_water_l
+            )
+        except Exception as e:
+            salt_results = {"error": f"No se pudo calcular la adición: {str(e)}"}
+
+    batch_doc = {
+        "id": batch_id,
+        "recipe_id": data.get("recipe_id"),
+        "recipe_name": data.get("recipe_name", "Lote Sin Nombre"),
+        "status": "in_progress",
+        "created_at": datetime.now().isoformat(),
+        "expected_liters": float(data.get("expected_liters", 20.0)),
+        "mash_water_l": mash_water_l,
+        "water_used_id": water_used_id,
+        "target_water_profile_id": target_water_profile_id,
+        "acid_used": data.get("acid_used", ""),
+        "salts_available": selected_salts,
+        "salt_additions_result": salt_results,  # Guardamos el resultado del cálculo
+        "temp_input_mode": data.get("temp_input_mode", "manual"),
+        "timestamps": {"additions": []},
+        "readings": []
+    }
+
+    db.collection("batches").document(batch_doc["id"]).set(batch_doc)
+    return jsonify({"status": "ok", "redirect_url": url_for("brew_session", batch_id=batch_doc["id"])})    
+
+
+@app.route("/brew/session/<batch_id>", methods=["GET"])
+def brew_session(batch_id):
+    """Panel de control interactivo durante el día de cocción."""
+    doc_ref = db.collection("batches").document(batch_id).get()
+    if not doc_ref.exists:
+        return "Lote no encontrado", 404
+
+    batch = doc_ref.to_dict() | {"id": batch_id}
+    return render_template("brew_session.html", batch=batch)
+
+
+@app.route("/brew/update/<batch_id>", methods=["POST"])
+def update_brew_session(batch_id):
+    """Actualiza timestamps, registros de temperatura/pH o notas en tiempo real."""
+    data = request.get_json()
+    db.collection("batches").document(batch_id).set(data, merge=True)
+    return jsonify({"status": "ok"})
+
 
 if __name__ == "__main__":
     # Toma el puerto de Cloud Run ($PORT) o usa 8080 en ejecuciones locales

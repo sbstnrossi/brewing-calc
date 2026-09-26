@@ -93,12 +93,12 @@ def calculate_water_volumes(
 SALTS_DATABASE: Dict[str, Dict[str, Any]] = {
     "CaSO4":  {"name": "Sulfato de Calcio (Yeso)",            "ca": 232.8,  "so4":  557.9},
     "CaCl2":  {"name": "Cloruro de Calcio (Dihidratado)",     "ca": 272.6,   "cl":  482.3},
-  # "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
+    "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
     "MgCl2":  {"name": "Cloruro de Magnesio (Hexahidratado)", "mg": 119.6,   "cl":  348.8},
     "NaCl":   {"name": "Cloruro de Sodio (Sal de mesa)",      "na": 393.4,   "cl":  606.6},
-  # "NaHCO3": {"name": "Bicarbonato de Sodio",                "na": 273.7, "hco3":  726.3},
-  # "CaCO3":  {"name": "Carbonato de Calcio (Tiza)",          "ca": 400.4, "hco3": 1219.3},
-  # "CaOH2":  {"name": "Hidróxido de Calcio (Cal)",           "ca": 540.9, "hco3": 1647.0}
+    "NaHCO3": {"name": "Bicarbonato de Sodio",                "na": 273.7, "hco3":  726.3},
+    "CaCO3":  {"name": "Carbonato de Calcio (Tiza)",          "ca": 400.4, "hco3": 1219.3},
+    "CaOH2":  {"name": "Hidróxido de Calcio (Cal)",           "ca": 540.9, "hco3": 1647.0}
 }
 
 IONS = ["ca", "mg", "na", "so4", "cl", "hco3"]
