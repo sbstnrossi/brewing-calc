@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Tablas - Brewing Calc</title>
+    <title>Gesti√≥n de Tablas - Brewing Calc</title>
     <style>
         body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; color: #333; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -20,14 +20,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚙️ Gestión de Tablas</h1>
+        <h1>‚öôÔ∏è Gesti√≥n de Tablas</h1>
 
         <div class="actions">
             <a href="/tables/recipe/new" class="btn btn-success">+ Nueva Receta</a>
-            <button onclick="syncJson()" class="btn btn-secondary">🔄 Sincronizar desde JSON</button>
+            <button onclick="syncJson()" class="btn btn-secondary">üîÑ Sincronizar desde JSON</button>
         </div>
 
-        <h2>📖 Recetas Cargadas</h2>
+        <h2>üìñ Recetas Cargadas</h2>
         <table>
             <thead>
                 <tr>
@@ -37,6 +37,7 @@
                     <th>FG Deseada</th>
                     <th>IBU</th>
                     <th>Temp Macerado</th>
+                    <th>Acciones</th> <!-- 1. Nueva columna -->
                 </tr>
             </thead>
             <tbody>
@@ -48,16 +49,21 @@
                     <td>{{ recipe.target_fg }}</td>
                     <td>{{ recipe.ibu }}</td>
                     <td>{{ recipe.mash_temp }} °C</td>
+                    <td>
+                        <!-- 2. Botón de exportar + opción de editar para cada receta -->
+                        <a href="/tables/recipe/edit/{{ recipe.id }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8em;">✏️ Editar</a>
+                        <a href="/tables/recipe/export/{{ recipe.id }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8em; background-color: #34495e;">📥 JSON</a>
+                    </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" style="text-align:center;">No hay recetas cargadas en Firestore.</td>
+                    <td colspan="7" style="text-align:center;">No hay recetas cargadas en Firestore.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <h2 style="margin-top: 40px;">💧 Perfiles de Agua</h2>
+        <h2 style="margin-top: 40px;">üíß Perfiles de Agua</h2>
         <table>
             <thead>
                 <tr>
@@ -92,7 +98,7 @@
 
     <script>
         async function syncJson() {
-            if (!confirm("¿Deseas sincronizar Firestore con los archivos JSON locales?")) return;
+            if (!confirm("¬øDeseas sincronizar Firestore con los archivos JSON locales?")) return;
             const res = await fetch("/tables/sync", { method: "POST" });
             const data = await res.json();
             alert(data.message);

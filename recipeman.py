@@ -59,9 +59,22 @@ class RecipeManager:
         with open(filepath, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
+                
+                # Caso 1: El JSON es directamente una lista [...]
                 if isinstance(data, list):
                     return {item.get("id", str(i)): item for i, item in enumerate(data)}
-                return data
+                
+                # Caso 2: El JSON es un diccionario
+                if isinstance(data, dict):
+                    # Si viene envuelto en una clave como {"recipes": [...]} o {"malts": [...]}
+                    for key, val in data.items():
+                        if isinstance(val, list):
+                            return {item.get("id", str(i)): item for i, item in enumerate(val)}
+                    
+                    # Si ya es un mapa directo {"id_1": {...}, "id_2": {...}}
+                    return data
+    
+                return {}
             except json.JSONDecodeError:
                 return {}
 

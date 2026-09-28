@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Cocción - Brewing Calc</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f4f6f8; color: #333; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1, h3 { color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #34495e; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; }
+        .checkbox-group label { font-weight: normal; cursor: pointer; }
+        .btn { padding: 12px 20px; border-radius: 5px; color: white; text-decoration: none; border: none; cursor: pointer; font-weight: bold; width: 100%; font-size: 1em; background: #e67e22; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Iniciar Día de Cocción</h1>
+        
+        <form id="startBrewForm">
+            <div class="form-group">
+                <label>Seleccionar Receta *</label>
+                <select id="recipe_id" required onchange="updateRecipeName(this)">
+                    <option value="">-- Seleccionar Receta --</option>
+                    {% for r in recipes %}
+                        <option value="{{ r.id }}" data-name="{{ r.name }}">{{ r.name }} ({{ r.style }})</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" id="recipe_name">
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Litros Esperados Finales</label>
+                    <input type="number" step="0.5" id="expected_liters" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Litros de Agua Macerado</label>
+                    <input type="number" step="0.5" id="mash_water_l" value="15">
+                </div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Agua Base a Usar (Fuente) *</label>
+                    <select id="water_used_id" required>
+                        <option value="">-- Seleccionar Agua Base --</option>
+                        {% for p in profiles %}
+                            <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Perfil Objetivo Deseado *</label>
+                    <select id="target_water_profile_id" required>
+                        <option value="">-- Seleccionar Perfil Objetivo --</option>
+                        {% for p in profiles %}
+                            <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Sales Disponibles en Planta</label>
+                <div class="checkbox-group">
+                    {% for key, salt in salts_db.items() %}
+                        <label>
+                            <input type="checkbox" name="salts" value="{{ key }}" checked> {{ salt.name }} ({{ key }})
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Modo de Control de Temperatura</label>
+                <select id="temp_input_mode">
+                    <option value="manual">Manual (Registro por Botón)</option>
+                    <option value="mqtt">MQTT / Automático (Sensor IOT)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn">🚀 Comenzar Cocción</button>
+        </form>
+    </div>
+
+    <script>
+        function updateRecipeName(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            document.getElementById('recipe_name').value = selectedOption.getAttribute('data-name') || '';
+        }
+
+        document.getElementById('startBrewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const selectedSalts = [];
+            document.querySelectorAll('input[name="salts"]:checked').forEach(cb => selectedSalts.push(cb.value));
+
+            const payload = {
+                recipe_id: document.getElementById('recipe_id').value,
+                recipe_name: document.getElementById('recipe_name').value,
+                expected_liters: parseFloat(document.getElementById('expected_liters').value) || 20,
+                mash_water_l: parseFloat(document.getElementById('mash_water_l').value) || 15,
+                water_profile_id: document.getElementById('water_profile_id').value,
+                acid_used: document.getElementById('acid_used').value,
+                salts_available: selectedSalts,
+                temp_input_mode: document.getElementById('temp_input_mode').value
+            };
+
+            const res = await fetch('/brew/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.status === 'ok') {
+                window.location.href = data.redirect_url;
+            }
+        });
+    </script>
+</body>
+</html>

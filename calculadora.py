@@ -12,12 +12,12 @@ import recipeman as rm
 import htmlreport as report
 import batchman as bm
 
-RECIPE_ID = "apa_01"
+RECIPE_ID = "bohemian_pilsner"
 
-mash_vol         = 16.0
-final_vol        = 20.0
+mash_vol         = 15.0
+final_vol        = 19.0
 preboil_max      = 19.0
-target_mash_ph   = None
+target_mash_ph   = 5.35
 target_sparge_ph = 5.5
 # Agua inicial (ej. Agua Ósmosis Inversa / Muy Blanda)
 ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0}
@@ -25,6 +25,10 @@ ro_water = {"ca": 1.0, "mg": 0.0, "na": 8.0, "so4": 2.0, "cl": 2.0, "hco3": 11.0
 # Instanciar el gestor de datos
 db = bdm.BruDataManager()
 recipes = rm.RecipeManager()
+
+# 🔍 Diagnóstico: ver qué recetas existen realmente
+all_recipes = recipes.recipes_ref.stream() if recipes.use_firestore else recipes._read_json(recipes.recipes_file)
+print("📋 Recetas disponibles:", [doc.id for doc in all_recipes] if recipes.use_firestore else list(all_recipes.keys()))
 
 details = recipes.get_recipe_details(RECIPE_ID, target_volume_l=final_vol)
 
@@ -81,8 +85,9 @@ print(f"Relación SO4/Cl: {receta_sales['so4_cl_ratio']}")
 
 estimate_mash_ph = core.estimate_unadjusted_mash_ph(
     mash_volume_l=mash_vol,
-    water_profile=adj_water,
-    grain_bill=grains
+    water_profile=ro_water,
+    grain_bill=grains,
+    salt_additions_g=receta_sales['salts_grams']
 )
 
 print("--- ESTIMACIÓN DE pH DE MACERACIÓN (SIN ÁCIDO) ---")
@@ -94,9 +99,10 @@ print(f"-> pH NATURAL ESTIMADO:   {estimate_mash_ph['estimated_unadjusted_ph']}\
 resultado_fosforico = core.calculate_mash_acid_addition(
     mash_volume_l= mash_vol,
     target_ph=target_mash_ph,
-    water_profile=adj_water,
+    water_profile=ro_water,
     grain_bill=grains,
-    acid_info=acid_data
+    acid_info=acid_data,
+    salt_additions_g=receta_sales['salts_grams']
 )
 
 print("--- RESULTADO ÁCIDO FOSFÓRICO 1M ---")

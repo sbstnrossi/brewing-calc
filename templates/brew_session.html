@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocción en Vivo: {{ batch.recipe_name }}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #1e272e; color: #f5f6fa; }
+        .container { max-width: 950px; margin: auto; background: #2f3640; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h1, h2, h3 { color: #fbc531; margin-top: 0; }
+        .status-bar { display: flex; justify-content: space-between; background: #353b48; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: #353b48; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        
+        .btn { padding: 10px 16px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; color: white; margin-right: 5px; margin-bottom: 5px; }
+        .btn-start { background: #44bd32; }
+        .btn-stop { background: #e84118; }
+        .btn-action { background: #00a8ff; }
+        .btn-manual-temp { background: #9c88ff; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #718093; padding: 8px; text-align: left; }
+        th { background: #2f3640; color: #fbc531; }
+        input, select { background: #2f3640; color: white; border: 1px solid #718093; padding: 6px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .timestamp-badge { background: #00a8ff; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍺 Cocción en Vivo: {{ batch.recipe_name }}</h1>
+
+        <div class="status-bar">
+            <div><strong>Lote ID:</strong> {{ batch.id }}</div>
+            <div><strong>Modo Temp:</strong> <span id="modeDisplay">{{ batch.temp_input_mode | upper }}</span></div>
+            <div><strong>Agua Macerado:</strong> {{ batch.mash_water_l }} L</div>
+        </div>
+        
+        <!-- TARJETA DE ADICIÓN DE SALES (UBICADA ANTES DE MACERADO) -->
+        <div class="card" style="border-left: 5px solid #fbc531;">
+            <h2>🧂 Ajuste de Agua: Sales a Agregar</h2>
+            <p style="font-size: 0.9em; color: #dcdde1;">
+                Calculado para <strong>{{ batch.mash_water_l }} Litros</strong> de agua de macerado.
+            </p>
+        
+            {% if batch.salt_additions_result and not batch.salt_additions_result.error %}
+                <table style="margin-bottom: 10px;">
+                    <thead>
+                        <tr>
+                            <th>Sal</th>
+                            <th>Gramos a Agregar (g)</th>
+                            <th>Gramos / Litro (g/L)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for salt_code, grams in batch.salt_additions_result.additions_g.items() %}
+                            {% if grams > 0.01 %}
+                            <tr>
+                                <td><strong>{{ salt_code }}</strong></td>
+                                <td><span style="color: #44bd32; font-weight: bold; font-size: 1.1em;">{{ "%.2f"|format(grams) }} g</span></td>
+                                <td>{{ "%.3f"|format(grams / batch.mash_water_l) }} g/L</td>
+                            </tr>
+                            {% endif %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">No se requieren adiciones de sales para este perfil.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: #e84118;">
+                    ⚠️ {{ batch.salt_additions_result.error if batch.salt_additions_result else "No se seleccionaron perfiles de agua para calcular las sales." }}
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="grid-2">
+            <!-- SECCIÓN MACERADO -->
+            <div class="card">
+                <h2>🥣 Macerado</h2>
+                <p>Inicio: <span id="mashStartDisplay" class="timestamp-badge">{{ batch.timestamps.mash_start or 'No iniciado' }}</span></p>
+                <p>Fin: <span id="mashEndDisplay" class="timestamp-badge">{{ batch.timestamps.mash_end or 'En proceso' }}</span></p>
+                
+                <button class="btn btn-start" onclick="setTimestamp('mash_start')">▶ Iniciar Macerado</button>
+                <button class="btn btn-stop" onclick="setTimestamp('mash_end')">⏹ Fin Macerado</button>
+                
+                <div style="margin-top: 15px;" id="manualTempSection">
+                    <button class="btn btn-manual-temp" onclick="addManualTemp()">🌡️ Registrar Temp (+Hora Actual)</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN HERVOR -->
+            <div class="card">
+                <h2>🔥 Hervor</h2>
+                <p>Inicio: <span id="boilStartDisplay" class="timestamp-badge">{{ batch.timestamps.boil_start or 'No iniciado' }}</span></p>
+                <p>Fin: <span id="boilEndDisplay" class="timestamp-badge">{{ batch.timestamps.boil_end or 'En proceso' }}</span></p>
+                
+                <button class="btn btn-start" onclick="setTimestamp('boil_start')">▶ Iniciar Hervor</button>
+                <button class="btn btn-stop" onclick="setTimestamp('boil_end')">⏹ Fin Hervor</button>
+                
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-action" onclick="addAddition()">➕ Registrar Adición (Lúpulo/Clarificante)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MEDITIONES Y NOTAS EN VIVO -->
+        <div class="card">
+            <h2>📝 Toma de Mediciones durante el Proceso</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Etapa</th>
+                        <th>Hora</th>
+                        <th>Litros</th>
+                        <th>Temp (°C)</th>
+                        <th>pH</th>
+                        <th>Densidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="readingsTable">
+                    {% for r in batch.readings %}
+                    <tr>
+                        <td>{{ r.stage }}</td>
+                        <td>{{ r.time }}</td>
+                        <td>{{ r.liters }}</td>
+                        <td>{{ r.temp }}</td>
+                        <td>{{ r.ph }}</td>
+                        <td>{{ r.sg or '-' }}</td>
+                        <td>-</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 20px;">+ Agregar Nueva Lectura</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto; gap: 8px;">
+                <select id="new_stage">
+                    <option value="Macerado">Macerado</option>
+                    <option value="Lavado">Lavado</option>
+                    <option value="Pre-boil">Pre-boil</option>
+                    <option value="Enfriado">Enfriado / Mosto Final</option>
+                    <option value="Inoculación">Inoculación Levadura</option>
+                </select>
+                <input type="number" step="0.5" id="new_liters" placeholder="Litros">
+                <input type="number" step="0.1" id="new_temp" placeholder="Temp °C">
+                <input type="number" step="0.01" id="new_ph" placeholder="pH">
+                <input type="number" step="0.001" id="new_sg" placeholder="Densidad (SG)">
+                <button class="btn btn-action" onclick="saveReading()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BATCH_ID = "{{ batch.id }}";
+        let BATCH_DATA = {{ batch | tojson }};
+
+        // Guardar cambios en Firestore
+        async function syncBatch() {
+            await fetch(`/brew/update/${BATCH_ID}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(BATCH_DATA)
+            });
+        }
+
+        // Registrar timestamps de Inicio/Fin de etapas
+        function setTimestamp(key) {
+            const nowStr = new Date().toLocaleTimeString();
+            if (!BATCH_DATA.timestamps) BATCH_DATA.timestamps = {};
+            BATCH_DATA.timestamps[key] = nowStr;
+            
+            if (document.getElementById(key + 'Display')) {
+                document.getElementById(key + 'Display').innerText = nowStr;
+            }
+            syncBatch();
+        }
+
+        // Agregar temperatura manual con la hora actual
+        function addManualTemp() {
+            const temp = prompt("Ingrese la temperatura actual (°C):");
+            if (temp) {
+                const nowStr = new Date().toLocaleTimeString();
+                if (!BATCH_DATA.readings) BATCH_DATA.readings = [];
+                BATCH_DATA.readings.push({ stage: 'Macerado', time: nowStr, temp: parseFloat(temp), liters: '', ph: '', sg: '' });
+                renderReadings();
+                syncBatch();
+            }
+        }
+
+        // Registrar adición de lúpulo o sales
+        function addAddition() {
+            const note = prompt("Descripción de la adición (Ej: 20g Citra a los 15 min):");
+            if (note) {
+                const nowStr = new Date().toLocaleTimeString();
+                if (!BATCH_DATA.timestamps.additions) BATCH_DATA.timestamps.additions = [];
+                BATCH_DATA.timestamps.additions.push({ time: nowStr, note });
+                alert(`Adición registrada a las ${nowStr}`);
+                syncBatch();
+            }
+        }
+
+        // Guardar lectura de la tabla de mediciones
+        function saveReading() {
+            const reading = {
+                stage: document.getElementById('new_stage').value,
+                time: new Date().toLocaleTimeString(),
+                liters: parseFloat(document.getElementById('new_liters').value) || '-',
+                temp: parseFloat(document.getElementById('new_temp').value) || '-',
+                ph: parseFloat(document.getElementById('new_ph').value) || '-',
+                sg: parseFloat(document.getElementById('new_sg').value) || '-'
+            };
+
+            if (!BATCH_DATA.readings) BATCH_DATA.readings = [];
+            BATCH_DATA.readings.push(reading);
+            renderReadings();
+            syncBatch();
+        }
+
+        function renderReadings() {
+            const tbody = document.getElementById('readingsTable');
+            tbody.innerHTML = '';
+            BATCH_DATA.readings.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${r.stage}</td>
+                        <td>${r.time}</td>
+                        <td>${r.liters}</td>
+                        <td>${r.temp}</td>
+                        <td>${r.ph}</td>
+                        <td>${r.sg}</td>
+                        <td>-</td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

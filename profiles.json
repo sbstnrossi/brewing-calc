@@ -26,6 +26,15 @@
     "hco3": 50.0,
     "description": "Cervezas rubias/doradas con mayor cuerpo y presencia de malta."
   },
+  "Yellow Balanced Up": {
+    "ca": 50.0,
+    "mg": 10.0,
+    "na": 15.0,
+    "so4": 115.0,
+    "cl": 85.0,
+    "hco3": 50.0,
+    "description": "Cervezas rubias/doradas con mayor cuerpo y presencia de malta."
+  },
   "Amber Balanced": {
     "ca": 55.0,
     "mg": 10.0,
