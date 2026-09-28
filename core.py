@@ -16,10 +16,15 @@ import warnings
 # ==============================================================================
 
 # parametros que necesitan ajuste con mediciones
-RET_IN_GRAINS_PROP = 1.4
-LOST_BOILING_PER_H = 3.25
-DUST_IN_BOIL_PROP  = 0.5
-DUST_IN_FERM_PROP  = 0.75
+# RET_IN_GRAINS_PROP = 1.4 # promedio de varios lotes
+RET_IN_GRAINS_PROP = 0.87 # caso bohemian pilsner 
+# LOST_BOILING_PER_H = 3.25 # valor lotes mediados de 2026
+LOST_BOILING_PER_H = 2.7 # valor de primeros lotes
+# DUST_IN_BOIL_PROP  = 0.5 # depende más de la cantidad de lupulo
+DUST_IN_BOIL       = 1.5 # sin torcer la olla
+# DUST_IN_FERM_PROP  = 0.75 # valor lotes mediados de 2026
+DUST_IN_FERM_PROP  = 0.5 # caso bohemian pilsner
+
 
 # Temperatura estándar de calibración del densímetro
 CALIBRATION_TEMP_C = 20.0  
@@ -61,7 +66,7 @@ def calculate_water_volumes(
     # -------------------------------------------------------------------------
     # 3. Calcula perdida por hervor y fondo de olla
     # -------------------------------------------------------------------------
-    lost_in_boiling = LOST_BOILING_PER_H * minutes_boiling/60.0 + DUST_IN_BOIL_PROP * total_weight
+    lost_in_boiling = LOST_BOILING_PER_H * minutes_boiling/60.0 + DUST_IN_BOIL
     
     # -------------------------------------------------------------------------
     # 4. calcula total de agua necesaria y proporciones
@@ -93,12 +98,12 @@ def calculate_water_volumes(
 SALTS_DATABASE: Dict[str, Dict[str, Any]] = {
     "CaSO4":  {"name": "Sulfato de Calcio (Yeso)",            "ca": 232.8,  "so4":  557.9},
     "CaCl2":  {"name": "Cloruro de Calcio (Dihidratado)",     "ca": 272.6,   "cl":  482.3},
-  # "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
+    "MgSO4":  {"name": "Sulfato de Magnesio (Epsom)",         "mg": 98.6,   "so4":  389.7},
     "MgCl2":  {"name": "Cloruro de Magnesio (Hexahidratado)", "mg": 119.6,   "cl":  348.8},
     "NaCl":   {"name": "Cloruro de Sodio (Sal de mesa)",      "na": 393.4,   "cl":  606.6},
-  # "NaHCO3": {"name": "Bicarbonato de Sodio",                "na": 273.7, "hco3":  726.3},
-  # "CaCO3":  {"name": "Carbonato de Calcio (Tiza)",          "ca": 400.4, "hco3": 1219.3},
-  # "CaOH2":  {"name": "Hidróxido de Calcio (Cal)",           "ca": 540.9, "hco3": 1647.0}
+    "NaHCO3": {"name": "Bicarbonato de Sodio",                "na": 273.7, "hco3":  726.3},
+    "CaCO3":  {"name": "Carbonato de Calcio (Tiza)",          "ca": 400.4, "hco3": 1219.3},
+    "CaOH2":  {"name": "Hidróxido de Calcio (Cal)",           "ca": 540.9, "hco3": 1647.0}
 }
 
 IONS = ["ca", "mg", "na", "so4", "cl", "hco3"]
