@@ -44,23 +44,33 @@
                 </div>
             </div>
             
-            <div class="grid-2">
+            <div class="grid-3">
                 <div class="form-group">
-                    <label>Agua Base a Usar (Fuente) *</label>
-                    <select id="water_used_id" required>
-                        <option value="">-- Seleccionar Agua Base --</option>
+                    <label>Agua Fuente (Base) *</label>
+                    <select id="source_profile_id" required>
+                        <option value="">-- Agua Base --</option>
                         {% for p in profiles %}
                             <option value="{{ p.id }}">{{ p.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
+            
                 <div class="form-group">
                     <label>Perfil Objetivo Deseado *</label>
-                    <select id="target_water_profile_id" required>
-                        <option value="">-- Seleccionar Perfil Objetivo --</option>
+                    <select id="target_profile_id" required>
+                        <option value="">-- Perfil Objetivo --</option>
                         {% for p in profiles %}
                             <option value="{{ p.id }}">{{ p.name }}</option>
                         {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="form-group">
+                    <label>Ácido Seleccionado</label>
+                    <select id="acid_selected">
+                        <option value="">-- Sin Ácido --</option>
+                        <option value="Phosphoric 1M">Ácido Fosfórico 1M</option>
+                        <option value="Lactic 88%">Ácido Láctico 88%</option>
                     </select>
                 </div>
             </div>
@@ -105,11 +115,17 @@
                 recipe_name: document.getElementById('recipe_name').value,
                 expected_liters: parseFloat(document.getElementById('expected_liters').value) || 20,
                 mash_water_l: parseFloat(document.getElementById('mash_water_l').value) || 15,
-                water_profile_id: document.getElementById('water_profile_id').value,
-                acid_used: document.getElementById('acid_used').value,
+                // Objeto anidado compatible con la receta y la calculadora
+                water_settings: {
+                    source_profile_id: document.getElementById('source_profile_id').value || 'ro_water',
+                    target_profile_id: document.getElementById('target_profile_id').value,
+                    acid_selected: document.getElementById('acid_selected').value
+                },
                 salts_available: selectedSalts,
                 temp_input_mode: document.getElementById('temp_input_mode').value
             };
+
+            console.log("🚀 Payload listo para enviar a Flask:", payload);
 
             const res = await fetch('/brew/start', {
                 method: 'POST',

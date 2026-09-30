@@ -67,9 +67,9 @@ if __name__ == "__main__":
 
     # Carga de colecciones
     #upload_json_to_firestore("malts.json", "malts")
-    #upload_json_to_firestore("recipes.json", "recipes")
+    upload_json_to_firestore("recipes.json", "recipes")
     #upload_json_to_firestore("batches.json", "batches")
-    upload_json_to_firestore("acidtable.json", "acids")
-    upload_json_to_firestore("profiles.json", "profiles")
+    #upload_json_to_firestore("acidtable.json", "acids")
+    #upload_json_to_firestore("profiles.json", "profiles")
 
     print("🎉 Proceso finalizado.")

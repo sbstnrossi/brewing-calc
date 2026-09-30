@@ -14,7 +14,7 @@ import batchman as bm
 
 RECIPE_ID = "bohemian_pilsner"
 
-mash_vol         = 15.0
+mash_vol         = 13.5
 final_vol        = 19.0
 preboil_max      = 19.0
 target_mash_ph   = 5.35

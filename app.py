@@ -351,14 +351,17 @@ def start_brew():
     data = request.get_json()
     batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-    water_used_id = data.get("water_used_id", "")
-    target_water_profile_id = data.get("target_water_profile_id", "")
+    water_settings = data.get("water_settings", {})
+    source_profile_id = water_settings.get("source_profile_id", "ro_water")
+    target_profile_id = water_settings.get("target_profile_id", "")
+    acid_selected = water_settings.get("acid_selected", "")
+    
     mash_water_l = float(data.get("mash_water_l", 15.0))
     selected_salts = data.get("salts_available", [])
 
     # 1. Obtener perfiles de agua desde Firestore ('profiles')
-    source_profile_doc = db.collection("profiles").document(water_used_id).get() if water_used_id else None
-    target_profile_doc = db.collection("profiles").document(target_water_profile_id).get() if target_water_profile_id else None
+    source_profile_doc = db.collection("profiles").document(source_profile_id).get() if source_profile_id else None
+    target_profile_doc = db.collection("profiles").document(target_profile_id).get() if target_profile_id else None
 
     source_data = source_profile_doc.to_dict() if (source_profile_doc and source_profile_doc.exists) else {}
     target_data = target_profile_doc.to_dict() if (target_profile_doc and target_profile_doc.exists) else {}
@@ -370,7 +373,7 @@ def start_brew():
 
     # 3. Calcular adición de sales si existen ambos perfiles
     salt_results = {}
-    if water_used_id and target_water_profile_id:
+    if source_profile_id and target_profile_id:
         try:
             # Si el usuario seleccionó sales específicas, podemos pasar un diccionario filtrado de pesos/disponibilidad
             salt_results = core.solve_salt_additions(
@@ -389,9 +392,9 @@ def start_brew():
         "created_at": datetime.now().isoformat(),
         "expected_liters": float(data.get("expected_liters", 20.0)),
         "mash_water_l": mash_water_l,
-        "water_used_id": water_used_id,
-        "target_water_profile_id": target_water_profile_id,
-        "acid_used": data.get("acid_used", ""),
+        "water_used_id": source_profile_id,
+        "target_water_profile_id": target_profile_id,
+        "acid_used": acid_selected,
         "salts_available": selected_salts,
         "salt_additions_result": salt_results,  # Guardamos el resultado del cálculo
         "temp_input_mode": data.get("temp_input_mode", "manual"),
