@@ -52,7 +52,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for salt_code, grams in batch.salt_additions_result.additions_g.items() %}
+                        {% for salt_code, grams in batch.salt_additions_result.salts_grams.items() %}
                             {% if grams > 0.01 %}
                             <tr>
                                 <td><strong>{{ salt_code }}</strong></td>

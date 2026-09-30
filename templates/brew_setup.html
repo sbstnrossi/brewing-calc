@@ -99,6 +99,24 @@
     </div>
 
     <script>
+        // Inyectamos las recetas con sus water_settings a JavaScript
+        const RECIPES_DATA = {{ recipes | tojson }};
+        
+        function updateRecipeName(select) {
+            const recipeId = select.value;
+            const recipe = RECIPES_DATA.find(r => r.id === recipeId);
+        
+            if (recipe) {
+                document.getElementById('recipe_name').value = recipe.name || '';
+                
+                // Auto-completar campos de agua si la receta tiene water_settings
+                if (recipe.water_settings) {
+                    document.getElementById('source_profile_id').value = recipe.water_settings.source_profile_id || '';
+                    document.getElementById('target_profile_id').value = recipe.water_settings.target_profile_id || '';
+                    document.getElementById('acid_selected').value = recipe.water_settings.acid_selected || '';
+                }
+            }
+        }
         function updateRecipeName(select) {
             const selectedOption = select.options[select.selectedIndex];
             document.getElementById('recipe_name').value = selectedOption.getAttribute('data-name') || '';
